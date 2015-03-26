@@ -1,0 +1,29 @@
+{
+  "name": "cbi",
+  "version": "1.0.0",
+  "description": "Parser / writer for working with CBI files",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bananajohnny/cbi.git"
+  },
+  "keywords": [
+    "cbi",
+    "corporate",
+    "banking",
+    "interbancario"
+  ],
+  "author": "Giovanni Lela",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bananajohnny/cbi/issues"
+  },
+  "homepage": "https://github.com/bananajohnny/cbi",
+  "dependencies": {
+    "chai": "^2.1.2",
+    "typescript-require": "^0.2.8"
+  }
+}
