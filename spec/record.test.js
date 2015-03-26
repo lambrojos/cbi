@@ -2,7 +2,7 @@
 require('typescript-require');
 var expect = require('chai').expect;
 
-var Record = require('../lib/record.ts').CBIRecord;
+var Record = require('../lib/record.js').CBIRecord;
 console.log(Record);
 
 

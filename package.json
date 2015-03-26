@@ -22,8 +22,8 @@
     "url": "https://github.com/bananajohnny/cbi/issues"
   },
   "homepage": "https://github.com/bananajohnny/cbi",
-  "dependencies": {
+  "devDependencies": {
     "chai": "^2.1.2",
-    "typescript-require": "^0.2.8"
+    "python-js": "^0.9.8"
   }
 }
