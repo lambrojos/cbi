@@ -1,6 +1,8 @@
 /// <reference path="../typings/tsd.d.ts" />
 
 import assert = require('assert');
+import mappings = require('./record_mapping');
+
 
 export class CBIRecord {
 
