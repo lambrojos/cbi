@@ -1,6 +1,21 @@
-'use strict';
+export interface FieldStruct{
 
-var IM = [
+    0 : number;
+    1 : number;
+    2 : string;
+}
+
+
+export type RecordStruct = Array<FieldStruct>;
+
+export type FlowStruct = {
+
+    [id : string] : RecordStruct
+
+}
+
+
+var IM : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 8, "mittente"],
@@ -19,7 +34,7 @@ var IM = [
 ];
 
 
-var PC = [
+var PC : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 8, "mittente"],
@@ -38,7 +53,7 @@ var PC = [
     [116, 120, "campo_non_disponibile"]
 ];
 
-var PE = [
+var PE : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 8, "mittente"],
@@ -54,7 +69,7 @@ var PE = [
     [116, 120, "campo_non_disponibile"]
 ];
 
-var EF = [
+var EF : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 8, "mittente"],
@@ -72,7 +87,7 @@ var EF = [
 ];
 
 
-var EF_BON = [
+var EF_BON : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 8, "mittente"],
@@ -91,7 +106,7 @@ var EF_BON = [
 ];
 
 
-var X = [
+var X : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 10, "numero_progressivo"],
@@ -116,7 +131,7 @@ var X = [
     [120, 120, "codice_divisa"]
 ];
 
-var EF_BON_ES = [
+var EF_BON_ES : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 8, "mittente"],
@@ -132,7 +147,7 @@ var EF_BON_ES = [
     [115, 120, "campo_non_disponibile"]
 ];
 
-var XIV = [
+var XIV : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 10, "numero_progressivo"],
@@ -153,7 +168,7 @@ var XIV = [
 ];
 
 
-var XVI = [
+var XVI : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 10, "numero_progressivo"],
@@ -167,7 +182,7 @@ var XVI = [
     [45, 120, "filler3"]
 ];
 
-var XVII = [
+var XVII : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 10, "numero_progressivo"],
@@ -181,7 +196,7 @@ var XVII = [
     [45, 120, "filler3"]
 ];
 
-var XX = [
+var XX : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 10, "numero_progressivo"],
@@ -193,7 +208,7 @@ var XX = [
 ];
 
 
-var XX_BON = [
+var XX_BON : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 10, "numero_progressivo"],
@@ -204,7 +219,7 @@ var XX_BON = [
     [117, 120, "filler2"]
 ];
 
-var XXX = [
+var XXX : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 10, "numero_progressivo"],
@@ -215,7 +230,7 @@ var XXX = [
 ];
 
 
-var XXX_BON = [
+var XXX_BON : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 10, "numero_progressivo"],
@@ -227,7 +242,7 @@ var XXX_BON = [
 ];
 
 
-var XL = [
+var XL : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 10, "numero_progressivo"],
@@ -240,7 +255,7 @@ var XL = [
 ];
 
 
-var XL_BON = [
+var XL_BON : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 10, "numero_progressivo"],
@@ -250,7 +265,7 @@ var XL_BON = [
     [71, 120, "banca_sportello_beneficiario"]
 ];
 
-var L_BON = [
+var L_BON : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 10, "numero_progressivo"],
@@ -261,7 +276,7 @@ var L_BON = [
 ];
 
 
-var L = [
+var L : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 10, "numero_progressivo"],
@@ -271,7 +286,7 @@ var L = [
 ];
 
 
-var LI = [
+var LI : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 10, "numero_progressivo"],
@@ -281,7 +296,7 @@ var LI = [
     [87, 120, "filler3"]
 ];
 
-var LIX = [
+var LIX : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 10, "numero_progressivo"],
@@ -289,7 +304,7 @@ var LIX = [
     [66, 120, "2_segmento"]
 ];
 
-var LX = [
+var LX : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 10, "numero_progressivo"],
@@ -300,7 +315,7 @@ var LX = [
 ];
 
 
-var LXX = [
+var LXX : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 10, "numero_progressivo"],
@@ -311,7 +326,7 @@ var LXX = [
     [101, 120, "chiavi_di_controllo"]
 ];
 
-var LXX_BON = [
+var LXX_BON : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 10, "numero_progressivo"],
@@ -330,14 +345,14 @@ var LXX_BON = [
     [113, 120, "chiavi_di_controllo"]
 ];
 
-var IB = [
+var IB : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 8, "mittente"],
     [9, 13, "ricevente"],
     [14, 19, "data_creazione"],
     [20, 39, "nome_supporto"],
-    [40, 45, "campo_a_disposizione"],
+    [40, 45, "cam Index signature of object type implicitly has an 'any' type.po_a_disposizione"],
     [46, 104, "filler2"],
     [105, 105, "tipo_flusso"],
     [106, 106, "qualificatore_flusso"],
@@ -349,7 +364,7 @@ var IB = [
  ];
 
 
-var XIV_IN = [
+var XIV_IN : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 10, "numero_progressivo"],
@@ -372,7 +387,7 @@ var XIV_IN = [
 ];
 
 
-var LI_IN = [
+var LI_IN : RecordStruct = [
     [1, 1, "filler1"],
     [2, 3, "tipo_record"],
     [4, 10, "numero_progressivo"],
@@ -386,7 +401,7 @@ var LI_IN = [
 ];
 
 
-var OUTPUT_RECORD_MAPPING = {
+var OUTPUT_RECORD_MAPPING: FlowStruct = {
     'IM': IM,
     'EF': EF,
     'PC': PC,
@@ -404,7 +419,7 @@ var OUTPUT_RECORD_MAPPING = {
     'IB': IB,
 };
 
-var INPUT_RECORD_MAPPING = {
+var INPUT_RECORD_MAPPING: FlowStruct = {
     'IM': IM,
     'EF': EF,
     '14': XIV_IN,
@@ -418,7 +433,7 @@ var INPUT_RECORD_MAPPING = {
     'IB': IB,
 };
 
-var BONIFICI = {
+var BONIFICI: FlowStruct = {
     'PC': PC,
     '10': X,
     '16': XVI,
@@ -432,13 +447,28 @@ var BONIFICI = {
     'EF': EF_BON
 }
 
-//unsupported!
-/*var BONIFICI_ESTERI = {
-'PE': PE, #testa
-'EF': EF_BON_ES, #coda
-}*/
-export var MAPPINGS = {
+var MAV : FlowStruct = {
+    'IM': IM,
+    'EF': EF,
+    '14': XIV_IN,
+    '20': XX,
+    '30': XXX,
+    '40': XL,
+    '50': L,
+    '51': LI_IN,
+    '59': LIX,
+    '70': LXX,
+    'IB': IB
+}
+
+interface Mappings {
+
+    [index : string] : FlowStruct;
+};
+
+export var MAPPINGS: Mappings = {
     OUTPUT_RECORD_MAPPING : OUTPUT_RECORD_MAPPING,
     INPUT_RECORD_MAPPING : INPUT_RECORD_MAPPING,
-    BONIFICI : BONIFICI
+    BONIFICI : BONIFICI,
+    MAV : MAV
 };

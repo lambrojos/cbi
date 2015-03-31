@@ -23,10 +23,12 @@
   },
   "homepage": "https://github.com/bananajohnny/cbi",
   "devDependencies": {
+    "assertion-error": "^1.0.1",
     "chai": "^2.2.0",
     "python-js": "^0.9.8"
   },
   "dependencies": {
+    "lazy.js": "^0.4.0",
     "underscore.string": "^3.0.3"
   }
 }

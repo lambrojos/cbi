@@ -1,4 +1,5 @@
-/// <reference path="./lib/record.ts"/>
-import r = require('lib/record');
+///<reference path='lib/record.ts'/>
 
-var test = new r.CBIRecord();
+import CBI = require('./lib/record');
+
+console.log(CBI);
