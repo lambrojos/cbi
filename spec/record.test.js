@@ -45,15 +45,59 @@ describe('The record class', function(){
 
         expect(r.fields.length).to.equal(15);
 
-        expect(r.getField('tipo_record').name === 'IM');
+        console.log(r.getField('tipo_record'));
 
-        expect(r.getField('codice_divisa').name === 'E');
+        expect(r.getField('tipo_record')).to.equal('IM');
+
+        expect(r.getField('codice_divisa')).to.equal('E');
+    });
+
+    it('renders a string a record', function(){
+
+        var r = new Record(testString, 'MAV');
+        expect(r.toString()).to.equal(testString);
+    });
+
+    it('does not allow non existing fields insertions', function(){
+
+        var r = new Record(testString, 'MAV');
+
+        function bad(){
+
+            r.setField('nonexisting', 'E');
+        }
+
+        expect(bad).to.throw('This record cannot contain a field with name nonexisting');
+    });
+
+    it('checks value length when inserting a field', function(){
+
+        var r = new Record(testString, 'MAV');
+
+        function bad(){
+
+            r.setField('codice_divisa', 'EEEEEE');
+        }
+
+        expect(bad).to.throw('Invalid content length for codice_divisa');
+    });
+
+    it('allows insertion of a correct length field', function(){
+
+        var r = new Record(testString, 'MAV');
+
+        function bad(){
+
+            r.setField('codice_divisa', 'E');
+        }
+
+        expect(bad).not.to.throw();
 
     });
 });
 
-
-describe("The append field method", function(){
+/*
+xdescribe("The append field method", function(){
 
     it('should reject non Field objects', function(){
 
@@ -66,5 +110,4 @@ describe("The append field method", function(){
 
         expect(badFunc).to.Throw('Not a Field instance');
     });
-
-});
+});*/

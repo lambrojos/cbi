@@ -4,46 +4,74 @@ import assert = require('assert');
 import CBIStructs = require('./record_mapping');
 import s = require('underscore.string');
 import lazy = require('lazy.js');
+import fs = require('fs');
+
+/**
+*
+*  Writer and parser for CBI txt files
+*
+*/
+
 
 export module CBI{
 
-    export class Field {
 
-        get length(): number {
-            return this.to - this.from + 1;
-        }
 
-        get name(): string{ return this._name; }
+    export class Flow {
 
         constructor(
+            private header: Record,
+            private disposals: Array <Disposals>,
+            private footer: Record) {
 
-            private from : number,
-            private to : number,
-            private _name : string,
-            private content? : string) {
-
-            assert(this.validatePosition(from),'Invalid from param');
-            assert(this.validatePosition(to), 'Invalid to param');
-
-            if(this.length <= 0){
-
-                throw new Error('Invalid from/to params');
-            }
-
-            this.content = content ? content : s.repeat(' ', this.length);
         }
 
+            public static readFile(
+                filepath: string,
+                flowtype:string = 'OUTPUT_RECORD_MAPPING' )
 
-        private validatePosition(val : number):Boolean{
+                : Flow {
 
-            return (typeof val === 'number') && (val % 1 === 0) && ( val>0 );
+                fs.readFile(filepath, (err,data)=>{
+
+                    if(err){ throw err };
+
+
+
+                });
         }
-
-
-       public toString():string { return this.content; }
     }
 
 
+
+    export class Disposal {
+
+       private records: Array<Record>;
+
+
+       //TODO può esserci solo un record con un dato codice all'interno di un disposal (distinta?)
+
+       public getRecord(string: code): Record {
+
+            assert(typeof code === 'string', 'Record type must be a string');
+
+            return lazy(this.records).find(
+                    (candidate: Record) => { return candidate.code === code} );
+       }
+
+       public appendRecord(record: Record){
+
+            assert(record instanceof Record, 'This is not a Record');
+            this.records.push(Record);
+       }
+
+
+    }
+
+
+    /**
+     *  Record class - maps to a single line in a cbi file
+     */
     export class Record {
 
         private _fields : Array<Field>;
@@ -55,13 +83,24 @@ export module CBI{
         private _code : string;
         get code(): string { return this._code;}
 
+        private recordStruct: CBIStructs.RecordStruct;
+
+
         public static RAW_RECORD_LENGTH: number = 120;
 
-        constructor (recordType: string, flowType: string){
+
+        /**
+         * Create a record istance.
+         *
+         * @param recordType - can be a two letter record type identifier OR a full raw record line
+         * @param flowType -  the file type this record belongs to - used for validation
+         */
+
+        constructor(recordType: string, flowType: string) {
 
             var code: string;
 
-            switch(recordType.length){
+            switch(recordType.length) {
 
                 //only the type was specified
                 case 2 :
@@ -86,13 +125,13 @@ export module CBI{
 
 
             //check if record type exists
-            var recStruct: CBIStructs.RecordStruct = flowStruct[this.code];
-            if( recStruct === undefined )
+            this.recordStruct  = flowStruct[this.code];
+            if( this.recordStruct === undefined )
                 throw new Error('Unknown record type '+ this.code);
 
 
             //create record
-            this._fields = recStruct.map( (struct: CBIStructs.FieldStruct) =>{
+            this._fields = this.recordStruct.map( (struct: CBIStructs.FieldStruct)=> {
 
                 var content: string = undefined;
 
@@ -118,23 +157,104 @@ export module CBI{
             this._lazyFields = lazy(this._fields);
         }
 
+        /**
+         * Gets a field by name. Two fields with the same name cannot exist in the same record
+         *
+         * @param name : the field name
+         */
 
-        public getField(name: string){
+        public getField(name: string): string {
 
-            return this._lazyFields.find( (candidate: Field) => { return candidate.name === name} );
+            return this._lazyFields.find(
+                    (candidate: Field) => { return candidate.name === name} ).toString();
+        }
+
+        /**
+         * Sets and validate a field
+         * @param name : the field name
+         * @param value : the field value
+         */
+
+        public setField(name: string, value : string): void {
+
+            var field: Field = this._lazyFields.find(
+                    (candidate: Field) => { return candidate.name === name} );
+
+            if(!field) {
+
+                throw new Error('This record cannot contain a field with name '+name);
+            }
+
+            field.content = value;
+        }
+
+        /**
+         *  Renders a string representation of the record
+         */
+        public toString(): string{
+
+            return this._fields.reduce(
+                (out: string, field: Field)=> { return out+=field.toString() },
+                ''
+            );
+        }
+
+    }
+
+
+
+    /**
+     * This class represents a field in a single record
+     */
+
+    export class Field {
+
+        get length(): number {
+            return this.to - this.from + 1;
+        }
+
+        get name(): string { return this._name; }
+
+        private _content: string;
+
+        set content(content: string) {
+
+             assert(content.length === this.length, 'Invalid content length for '+this._name);
+             this._content = content;
+        }
+
+        get content() {
+
+             return this._content;
+        }
+
+        constructor(
+
+            private from : number,
+            private to : number,
+            private _name : string,
+            content? : string) {
+
+            assert(this.validatePosition(from),'Invalid from param');
+            assert(this.validatePosition(to), 'Invalid to param');
+
+            if(this.length <= 0){
+
+                throw new Error('Invalid from/to params');
+            }
+
+            this._content = content ? content : s.repeat(' ', this.length);
+
+            assert(this._content.length === this.length);
         }
 
 
-        public appendField(field: Field){
+        private validatePosition(val : number):Boolean{
 
-            assert( field instanceof Field, 'Not a Field instance' );
-
-            var f = this.getField(name);
-
-            if(f){ throw new Error('There is already a field with name '+field.name); }
-
-            this._fields.push(field);
+            return (typeof val === 'number') && (val % 1 === 0) && ( val>0 );
         }
 
+
+       public toString():string { return this.content; }
     }
 }
