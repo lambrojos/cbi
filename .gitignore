@@ -2,4 +2,3 @@ tmp/
 typings/
 tsd.json
 node_modules
-*.js
