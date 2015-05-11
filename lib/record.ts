@@ -1,57 +1,154 @@
 ///<reference path="../typings/tsd.d.ts"/>
-
 import assert = require('assert');
 import CBIStructs = require('./record_mapping');
 import s = require('underscore.string');
 import lazy = require('lazy.js');
 import fs = require('fs');
+import bl = require('byline');
 
 /**
 *
 *  Writer and parser for CBI txt files
 *
 */
-
-
 export module CBI{
 
-
-
+    /*
+     * Flow class - maps to a whole CBI file
+     *
+     */
     export class Flow {
 
-        constructor(
-            private header: Record,
-            private disposals: Array <Disposals>,
-            private footer: Record) {
+        private _header: Record;
+        private _disposals: Array<Disposal>;
+        private _footer: Record;
+        public flowtype: string;
 
+        /**
+         * It's possibile to create a new empty instance and then fill in the fields,
+         * or to specify a record array, usually from a parsed file
+         *
+         * @param records array of records, including header and footer, or null
+         * @param flowtype the flow type
+         *
+         **/
+
+        constructor( records: Array<Record>, flowtype: string, firstRecordId: string = '14'){
+
+            this.flowtype = flowtype;
+
+            if(records === null){ return; }
+
+            if(records.length < 3){
+
+                throw new Error('Insufficent record length');
+            }
+
+            this._header = records.shift();
+            this._footer = records.pop();
+
+            this._disposals = records.reduce(
+
+                (dps: Array<Disposal>, rec: Record)=>{
+
+                    var currentDsp = dps[dps.length-1];
+
+                    //TODO devo validare il fatto che il primo record che becco
+                    //ha il firstRecordId
+
+                    // New disp starting
+                    if(rec.getField('tipo_record') === firstRecordId ){
+
+                        currentDsp = new Disposal();
+                        dps.push(currentDsp);
+                    }
+
+                    //questo si verifica se il primo record non è un tipo_record
+                    assert(currentDsp instanceof Disposal, 'Wrong file format - first record did not have correct tipo_record');
+
+                    currentDsp.appendRecord(rec);
+
+                    return dps;
+                },
+
+                []
+            )
         }
 
-            public static readFile(
-                filepath: string,
-                flowtype:string = 'OUTPUT_RECORD_MAPPING' )
+        /**
+         *  Convenience static method to create an instance from a file
+         *
+         *  @param filepath path to a cbi file
+         *  @param flowtype the flow type
+         *  @param onready nodeback style completion callback
+         *
+         * */
 
-                : Flow {
+        public static fromFile(
 
-                fs.readFile(filepath, (err,data)=>{
+            filepath: string,
+            flowtype: string,
+            onready: (err: Error, flow: Flow)=> void
+            )
+            : void {
 
-                    if(err){ throw err };
 
+            var stream: bl.LineStream = bl.createStream(
 
+                fs.createReadStream(filepath)
+            );
 
-                });
+            var records: Array<Record> = [];
+
+            stream.on('readable', function() {
+
+                var line: Buffer;
+
+                while (null !== (line = stream.read())) {
+
+                    records.push( new Record(line.toString(), flowtype));
+                }
+            });
+
+            stream.on('error', (err: Error)=> {onready( err, null); } );
+            stream.on('end', ()=>{ onready(null, new Flow(records, flowtype)) });
         }
+
+
+        public toFile(filepath: string, done: (err: Error)=>void){
+
+            var writeStream = fs.createWriteStream(filepath);
+            writeStream.write(this._header.toString()+'\r\n');
+
+            this._disposals.forEach((disposal : Disposal)=>{
+
+                writeStream.write(disposal.toString());
+            });
+
+            writeStream.write(this._footer.toString()+'\r\n');
+            writeStream.end();
+
+            writeStream.on('error', function(err: Error){
+                return done(err);
+            });
+            writeStream.on('finish', function(){
+                return done(null);
+            });
+        };
+
     }
-
-
 
     export class Disposal {
 
        private records: Array<Record>;
 
+       constructor(){
+
+           this.records = [];
+       }
 
        //TODO può esserci solo un record con un dato codice all'interno di un disposal (distinta?)
-
-       public getRecord(string: code): Record {
+       public getRecord(code: string): Record {
 
             assert(typeof code === 'string', 'Record type must be a string');
 
@@ -62,12 +159,17 @@ export module CBI{
        public appendRecord(record: Record){
 
             assert(record instanceof Record, 'This is not a Record');
-            this.records.push(Record);
+            this.records.push(record);
        }
 
+       public toString(): string{
 
+            return this.records.reduce(
+                (out: string, record: Record)=> { return out+=record.toString()+'\r\n' },
+                ''
+            );
+        }
     }
-
 
     /**
      *  Record class - maps to a single line in a cbi file
@@ -85,9 +187,7 @@ export module CBI{
 
         private recordStruct: CBIStructs.RecordStruct;
 
-
         public static RAW_RECORD_LENGTH: number = 120;
-
 
         /**
          * Create a record istance.
@@ -95,7 +195,6 @@ export module CBI{
          * @param recordType - can be a two letter record type identifier OR a full raw record line
          * @param flowType -  the file type this record belongs to - used for validation
          */
-
         constructor(recordType: string, flowType: string) {
 
             var code: string;
@@ -123,12 +222,14 @@ export module CBI{
             if( flowStruct === undefined)
                 throw new Error('Unknown flow type '+ flowType);
 
-
             //check if record type exists
+
+            if(this.code === '51')
+                console.log('aaaa',flowStruct[this.code]);
+
             this.recordStruct  = flowStruct[this.code];
             if( this.recordStruct === undefined )
                 throw new Error('Unknown record type '+ this.code);
-
 
             //create record
             this._fields = this.recordStruct.map( (struct: CBIStructs.FieldStruct)=> {
@@ -162,7 +263,6 @@ export module CBI{
          *
          * @param name : the field name
          */
-
         public getField(name: string): string {
 
             return this._lazyFields.find(
@@ -174,7 +274,6 @@ export module CBI{
          * @param name : the field name
          * @param value : the field value
          */
-
         public setField(name: string, value : string): void {
 
             var field: Field = this._lazyFields.find(
@@ -198,15 +297,11 @@ export module CBI{
                 ''
             );
         }
-
     }
-
-
 
     /**
      * This class represents a field in a single record
      */
-
     export class Field {
 
         get length(): number {
@@ -248,13 +343,11 @@ export module CBI{
             assert(this._content.length === this.length);
         }
 
-
         private validatePosition(val : number):Boolean{
 
             return (typeof val === 'number') && (val % 1 === 0) && ( val>0 );
         }
 
-
-       public toString():string { return this.content; }
+        public toString():string { return this.content; }
     }
 }

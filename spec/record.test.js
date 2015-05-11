@@ -45,8 +45,6 @@ describe('The record class', function(){
 
         expect(r.fields.length).to.equal(15);
 
-        console.log(r.getField('tipo_record'));
-
         expect(r.getField('tipo_record')).to.equal('IM');
 
         expect(r.getField('codice_divisa')).to.equal('E');

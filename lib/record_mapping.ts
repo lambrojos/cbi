@@ -11,9 +11,7 @@ export type RecordStruct = Array<FieldStruct>;
 export type FlowStruct = {
 
     [id : string] : RecordStruct
-
 }
-
 
 var IM : RecordStruct = [
     [1, 1, "filler1"],
@@ -397,7 +395,10 @@ var LI_IN : RecordStruct = [
     [87, 91, "importo"],
     [92, 97, "valuta_di_addebito"],
     [98, 109, "riferimento"],
-    [110, 115, "data_effettiva_di_pagamento"]
+    [110, 115, "data_effettiva_di_pagamento"],
+
+    //TODO check elBati answer here https://github.com/eLBati/CBI/issues/2
+    [116, 120, "campo_non_disponibile"]
 ];
 
 
