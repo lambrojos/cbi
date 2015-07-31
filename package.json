@@ -29,8 +29,7 @@
     "python-js": "^0.9.8"
   },
   "dependencies": {
-    "byline": "^4.2.1",
-    "lazy.js": "^0.4.0",
-    "underscore.string": "^3.0.3"
+    "bluebird": "^2.9.34",
+    "libxmljs": "^0.14.2"
   }
 }

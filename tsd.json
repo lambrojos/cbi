@@ -9,7 +9,13 @@
       "commit": "bba34156c1eaad788fa8996f7d30b54c4fce5ffe"
     },
     "node/node.d.ts": {
-      "commit": "bba34156c1eaad788fa8996f7d30b54c4fce5ffe"
+      "commit": "383a3bc8e654a77eb8bd07d9feb7208735dcb6fa"
+    },
+    "libxmljs/libxmljs.d.ts": {
+      "commit": "383a3bc8e654a77eb8bd07d9feb7208735dcb6fa"
+    },
+    "bluebird/bluebird.d.ts": {
+      "commit": "383a3bc8e654a77eb8bd07d9feb7208735dcb6fa"
     }
   }
 }
