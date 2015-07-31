@@ -15,9 +15,10 @@
     ],
     "files": [
         "./index.ts",
+        "./lib/CBIOperation.ts",
+        "./lib/SDDReq.ts",
         "./lib/logical_message.ts",
-        "./lib/record_mapping.d.ts",
-        "./lib/record_mapping.ts",
+        "./lib/validators.ts",
         "./lib/xml_utils.ts",
         "./typings/bluebird/bluebird.d.ts",
         "./typings/libxmljs/libxmljs.d.ts",

@@ -1,30 +1,60 @@
 ///<reference path="../typings/tsd.d.ts"/>
-import assert = require('assert');
 
-  export enum documentType { SDDRequest, SDDStatusReport, STC };
+import {CBIOperation} from "./CBIOperation";
+import { readXML } from "./xml_utils";
+import * as assert from "assert";
+import * as validators from "./validators";
+
+export enum documentType { SDDRequest, SDDStatusReport, STC };
+/**
+ * Class LogicalMessage
+ * @class CBI.LogicalMessage
+ * @classdesc A class that manages cbi logical messages
+ */
+export class LogicalMessage<T extends CBIOperation> {
+
   /**
-   * Class LogicalMessage
-   * @class CBI.LogicalMessage
-   * @classdesc A class that manages cbi logical messages
+   * The message type
+   * @type {string}
    */
-  export class LogicalMessage {
+  private _type: documentType;
 
-    /**
-     * The message type
-     * @type {string}
-     */
+  /**
+   * The message id
+   * @type {string}
+   */
+  public messageIdentification: string;
 
-    private _type: documentType;
-    get type() { return this._type; }
-    set type(type) {
-      this._type = type;
-    }
+  /**
+   * The messages' creation date
+   * @type {Date}
+   */
+  private _creationDateTime: Date;
+  get creationDateTime(){ return this.creationDateTime; };
+  set creationDateTime(){ assert(); }
 
-    public messageIdentification: string;
-    public creationDateTime: Date;
+  /**
+   * Total number of transactions
+   * @type {number}
+   */
+  private numberOfTransactions: number;
 
-    private numberOfTransactions: number;
-
-
+  public constructor(){
 
   }
+
+  public static fromFile
+    <T extends CBIOperation>
+    (xmlPath: string, OperationClass: typeof CBIOperation ):
+    Bromise<LogicalMessage<T>> {
+
+    return readXML(xmlPath, OperationClass.XSDFilepath)
+    .then(function(xmlDocument){
+
+      const lm = new LogicalMessage();
+
+
+      return lm;
+    });
+  }
+}

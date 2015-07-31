@@ -35,8 +35,7 @@ var xml =  '<?xml version="1.0" encoding="UTF-8"?>' +
       var isValid = xmlDoc.validate(xsdDoc);
 
       if(!isValid){
-        const e = new Error('Invalid document. Check this error\'s validationErrors property');
-        e.validationErrors = xmlDoc.validationErrors;
+        const e = new Error('Invalid document.'+xmlDoc.validationErrors.toString());
       }
     });
 
