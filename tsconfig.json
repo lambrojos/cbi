@@ -20,10 +20,10 @@
         "./lib/logical_message.ts",
         "./lib/validators.ts",
         "./lib/xml_utils.ts",
+        "./typings/assert/assert.d.ts",
         "./typings/bluebird/bluebird.d.ts",
         "./typings/libxmljs/libxmljs.d.ts",
         "./typings/node/node.d.ts",
-        "./typings/ramda.d.ts",
         "./typings/tsd.d.ts"
     ]
 }

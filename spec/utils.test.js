@@ -12,7 +12,8 @@ describe('the xml utils library', function() {
     var xmlPath = path.resolve(__dirname, './testdata/SDDRequest.xml');
 
     xmlutils.readXML(xmlPath, xsdPath)
-    .then(function (what) {
+    .then(function (doc) {
+      expect(doc).to.be.a.Function;
       done();
     })
     .catch(function(err) {

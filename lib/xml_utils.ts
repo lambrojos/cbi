@@ -37,6 +37,8 @@ var xml =  '<?xml version="1.0" encoding="UTF-8"?>' +
       if(!isValid){
         const e = new Error('Invalid document.'+xmlDoc.validationErrors.toString());
       }
+
+      return xmlDoc;
     });
 
   /*function readXML(xmlPath: string, xsdPath: string){
