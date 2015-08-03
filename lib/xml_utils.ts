@@ -1,19 +1,10 @@
 ///<reference path="../typings/tsd.d.ts"/>
 import * as P from 'bluebird';
-import * as libxml from 'libxmljs';
+import {Document} from 'libxmljs-mt';
 import {readFile} from 'fs';
 
-const libxmlAsync = P.promisifyAll(libxml);
 const readFileAsync = P.promisify(readFile);
-const nextTick = P.promisify(process.nextTick);
-var xml =  '<?xml version="1.0" encoding="UTF-8"?>' +
-           '<root>' +
-               '<child foo="bar">' +
-                   '<grandchild baz="fizbuzz">grandchild content</grandchild>' +
-               '</child>' +
-               '<sibling>with content!</sibling>' +
-           '</root>';
-
+const parseXMLAsync = P.promisify(Document.fromXmlAsync);
 
   export function readXML(xmlPath: string, xsdPath: string){
 
@@ -21,11 +12,9 @@ var xml =  '<?xml version="1.0" encoding="UTF-8"?>' +
 
     .then(function(buffers){
 
-      const docs = buffers.map(
-        buffer => libxml.parseXmlString(buffer.toString())
-      );
-
-      return docs;
+      return P.all(
+        buffers.map(buffer => parseXMLAsync(buffer, {})
+      ));
     })
 
     // break from all that sync parsing

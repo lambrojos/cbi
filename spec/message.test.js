@@ -20,7 +20,7 @@ describe('Logical message class', function() {
 
   it('creates valid xml documents', function(done) {
 
-    var msg = new LogicalMessage();
+    var msg = new LogicalMessage(SDDReq);
     console.log(msg.toXMLDoc().toString());
     expect(msg).not.to.be.null;
 

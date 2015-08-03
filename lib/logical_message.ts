@@ -1,9 +1,11 @@
 ///<reference path="../typings/tsd.d.ts"/>
 
 import {CBIOperation} from "./CBIOperation";
-import { readXML } from "./xml_utils";
-import * as libxml from 'libxmljs';
+import {readXML} from "./xml_utils";
+import * as libxml from 'libxmljs-mt';
 import * as assert from "assert";
+
+type XMLDoc = libxml.Document;
 
 /**
  * Class LogicalMessage
@@ -43,26 +45,44 @@ export class LogicalMessage<T extends CBIOperation> {
   private numberOfTransactions: number;
 
 
-  public constructor(private transactionClass: CBIOperation){}
+  public constructor(private transactionClass: typeof CBIOperation){}
 
   /**
   * Validates this message
   * (only application level validations are run)
   */
+  public validate(){
+    assert(this.messageIdentification);
+  }
 
-  public toXMLDoc(): libxml.Document{
+  public toXMLDoc(): XMLDoc{
+
+    this.validate();
 
     //calculate checkSum and number of transactions
 
-    let doc = new libxml.Document();
+    let doc = new libxml.Document(),
+    xsdName = this.transactionClass.XSDName;
 
   //public validate(): boolean{}
-    doc.node("CBISDDReqLogMsg");
+    const root = doc.node("CBISDDReqLogMsg")
+    root.attr({
+        'xmlns': `urn:CBI:xsd:${xsdName}`,
+        'xmlns:uri': `urn:CBI:xsd:${xsdName} ${xsdName}.xsd`,
+        'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance'
+    });
 
+    this.addHeader(root);
     return doc;
   }
 
-  public static fromXMLDoc(doc: libxml.Document, transactionClass: CBIOperation){
+  private addHeader(root: libxml.Element){
+
+    const header = root.node('GrpHdr');
+    header.node('MsgId', this.messageIdentification);
+  }
+
+  public static fromXMLDoc(doc: XMLDoc, transactionClass: typeof CBIOperation){
 
     let lm = new LogicalMessage(transactionClass);
 

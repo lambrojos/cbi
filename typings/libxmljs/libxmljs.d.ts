@@ -3,7 +3,7 @@
 // Definitions by: François de Campredon <https://github.com/fdecampredon>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
 
-declare module "libxmljs" {
+declare module "libxmljs-mt" {
 
     export function parseXmlString(source:string):Document;
     export function parseHtmlString(source:string):HTMLDocument;
@@ -13,6 +13,7 @@ declare module "libxmljs" {
         validate(XSDDocument: Document):boolean;
         validationErrors: Array<Object>;
 
+        static fromXmlAsync(buffer:Buffer, options:Object, done:(err: Error, doc:Document)=>void)
         constructor(version?:number, encoding?:string);
         child(idx:number):Element;
         childNodes():Element[];
