@@ -17,13 +17,17 @@
         "./index.ts",
         "./lib/CBIOperation.ts",
         "./lib/SDDReq.ts",
+        "./lib/initiatingParty.ts",
         "./lib/logical_message.ts",
         "./lib/validators.ts",
         "./lib/xml_utils.ts",
+        "./typings/CBI/cbi.d.ts",
         "./typings/assert/assert.d.ts",
         "./typings/bluebird/bluebird.d.ts",
         "./typings/libxmljs/libxmljs.d.ts",
         "./typings/node/node.d.ts",
-        "./typings/tsd.d.ts"
+        "./typings/ramda.d.ts",
+        "./typings/tsd.d.ts",
+        "./typings/uuid/UUID.d.ts"
     ]
 }

@@ -30,6 +30,8 @@
   },
   "dependencies": {
     "bluebird": "^2.9.34",
-    "libxmljs-mt": "^0.14.2"
+    "codice_fiscale_validator": "git+https://github.com/linkmesrl/codice_fiscale_validator.git",
+    "libxmljs-mt": "^0.14.2",
+    "uuid": "^2.0.1"
   }
 }

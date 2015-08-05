@@ -28,12 +28,16 @@ declare module "libxmljs-mt" {
         version():Number;
     }
 
-    export class HTMLDocument extends XMLDocument {
+    export class Node {
+      node(name:string, content?:string):Element;
+    }
+
+    export class HTMLDocument extends Document {
 
     }
 
 
-    export class Element {
+    export class Element extends Node {
         constructor(doc:Document, name:string, content?:string);
         name():string;
         name(newName:string):void;
@@ -70,7 +74,7 @@ declare module "libxmljs-mt" {
     }
 
 
-    export class Attribute {
+    export class Attribute extends Node {
         constructor(node:Element, name:string, value:string);
         constructor(node:Element, name:string, value:string, ns:Namespace);
         name():string;
@@ -83,7 +87,7 @@ declare module "libxmljs-mt" {
         value():string;
     }
 
-    export class Namespace {
+    export class Namespace extends Node {
         constructor(node:Element, prefix:string, href:string);
         href():string;
         prefix():string;

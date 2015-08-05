@@ -2,6 +2,8 @@
 
 import {CBIOperation} from "./CBIOperation";
 import {readXML} from "./xml_utils";
+import {v4 as getUUID} from 'uuid';
+import {InitiatingParty} from "./initiatingParty";
 import * as libxml from 'libxmljs-mt';
 import * as assert from "assert";
 
@@ -20,6 +22,8 @@ export class LogicalMessage<T extends CBIOperation> {
    * @type {string}
    */
   public messageIdentification: string;
+
+  public initiatingParty: InitiatingParty;
 
   /**
    * The messages' creation date
@@ -52,14 +56,26 @@ export class LogicalMessage<T extends CBIOperation> {
   * (only application level validations are run)
   */
   public validate(){
-    assert(this.messageIdentification);
+    if(!this.messageIdentification){
+      this.generateMessageIdentification();
+    }
+
+    if(!this._creationDateTime){
+      this._creationDateTime = new Date();
+    }
+  }
+
+  /**
+   * Generates an id for this message. It's an UUID v4
+   * without dashes
+   */
+  protected generateMessageIdentification(): void{
+    this.messageIdentification = getUUID().replace('-','');
   }
 
   public toXMLDoc(): XMLDoc{
 
     this.validate();
-
-    //calculate checkSum and number of transactions
 
     let doc = new libxml.Document(),
     xsdName = this.transactionClass.XSDName;
@@ -67,22 +83,37 @@ export class LogicalMessage<T extends CBIOperation> {
   //public validate(): boolean{}
     const root = doc.node("CBISDDReqLogMsg")
     root.attr({
-        'xmlns': `urn:CBI:xsd:${xsdName}`,
-        'xmlns:uri': `urn:CBI:xsd:${xsdName} ${xsdName}.xsd`,
-        'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance'
+      'xmlns': `urn:CBI:xsd:${xsdName}`,
+      'xmlns:uri': `urn:CBI:xsd:${xsdName} ${xsdName}.xsd`,
+      'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance'
     });
 
     this.addHeader(root);
     return doc;
   }
 
-  private addHeader(root: libxml.Element){
+  /**
+   * Adds an header to the exported doc
+   * @param  {libxml.Element} The root element of the exported doc
+   * @return {[type]}              [description]
+   */
+  protected addHeader(root: libxml.Element){
 
     const header = root.node('GrpHdr');
     header.node('MsgId', this.messageIdentification);
+    header.node('CreDtTm', this._creationDateTime.toISOString());
+
+    this.initiatingParty.appendElement(header);
   }
 
-  public static fromXMLDoc(doc: XMLDoc, transactionClass: typeof CBIOperation){
+
+  /**
+   * Create a new instance from an XML Document instance.
+   * @param  {XMLDoc}    doc            The parsed XML file
+   * @param  {typeof CBIOperation} transactionClass The type of transaction contained in this file
+   * @return {[type]}                   [description]
+   */
+  public static fromXMLDoc(doc: XMLDoc, transactionClass: typeof CBIOperation):LogicalMessage<CBIOperation>{
 
     let lm = new LogicalMessage(transactionClass);
 
@@ -112,12 +143,18 @@ export class LogicalMessage<T extends CBIOperation> {
             case "CtrlSum":
               checkSum = parseInt(el.text(), 10);
             break;
+
+            case "InitgPty":
+              lm.initiatingParty = InitiatingParty.fromElement(el);
+            break;
           }
         });
       }
+
     });
 
     assertArray([
+      lm.initiatingParty,
       lm.creationDateTime,
       lm.messageIdentification,
       nTransactions,
@@ -133,7 +170,6 @@ export class LogicalMessage<T extends CBIOperation> {
 
     return readXML(xmlPath, transactionClass.XSDFilepath)
     .then(function(doc){
-
       return LogicalMessage.fromXMLDoc(doc, transactionClass);
     });
   }
