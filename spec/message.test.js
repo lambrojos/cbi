@@ -5,13 +5,13 @@ var path = require('path');
 var xmlPath = path.resolve(__dirname, './testdata/SDDRequest.xml');
 
 describe('Logical message class', function() {
+
   it('parses and validates and xml document', function(done) {
 
     LogicalMessage.fromXMLFile(xmlPath, SDDReq)
     .then(function(logicalMsg){
 
       expect(logicalMsg.messageIdentification).to.equal('20133281307140001');
-      //expect(logicalMsg.creationDateTime).to.equal(new Date('2013-11-24T13:07:14+01:00'));
       done();
     });
   });
@@ -21,7 +21,6 @@ describe('Logical message class', function() {
     LogicalMessage.fromXMLFile(xmlPath, SDDReq)
     .then(function(msg){
 
-      console.log(msg.toXMLDoc().toString());
       expect(msg).not.to.be.null;
       done();
     });

@@ -1,6 +1,80 @@
+'use strict';
 var expect = require('chai').expect;
 var Other = require('../lib/initiatingParty').Other;
 var InitiatingParty = require('../lib/initiatingParty').InitiatingParty;
+
+
+describe('The InitiatingParty class', function() {
+
+  it('the first Other instance must be a CUC', function() {
+
+    var ip = new InitiatingParty();
+
+    var ADE = new Other();
+    ip.issuer = 'ADE';
+    ip.identification = 'LLEGNN86P23F205T';
+
+    var CUC = new Other();
+    ip.issuer = 'CUC';
+    ip.identification = '12345678';
+
+    ip.name = 'piergiorgio';
+    var bad = function() {
+      ip.organizationsIDs.push(ADE);
+      ip.validate();
+    };
+    expect(bad).to.throw('BE05');
+
+    ip.organizationsIDs = [];
+    var good = function() {
+      ip.organizationsIDs.push(CUC);
+      ip.validate();
+    };
+
+    expect(good).not.to.throw;
+  });
+
+  it('if there are more than one Other instance, they must be ADEs except the first',
+
+    function() {
+
+      var CUC = new Other();
+      CUC.issuer = 'CBI';
+      CUC.identification = '123456789';
+
+      var CUC1 = new Other();
+      CUC1.issuer = 'CBIss';
+      CUC1.identification = '12345678';
+
+      var ip = new InitiatingParty();
+      ip.organizationsIDs.push(CUC);
+      ip.organizationsIDs.push(CUC1);
+
+      var bad = function() {
+
+        ip.validate();
+      };
+
+      expect(bad).to.throw('BE15')
+    }
+  );
+
+  it('calls the validate function of its own Others', function() {
+
+      var badCUC = new Other();
+      badCUC.issuer = 'CBI';
+      badCUC.identification = 'r123456789';
+
+      var ip = new InitiatingParty();
+      ip.organizationsIDs.push(badCUC);
+
+      var bad = function() {
+        ip.validate();
+      };
+
+      expect(bad).to.throw('NARR');
+  });
+});
 
 
 describe('the Other class', function() {

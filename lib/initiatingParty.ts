@@ -2,8 +2,6 @@
 import * as libxml from 'libxmljs-mt';
 import * as assert from 'assert';
 
-//import aaa = require('codice_fiscale_validator');
-
 type XMLDoc = libxml.Document;
 
 export class InitiatingParty{
@@ -18,7 +16,23 @@ export class InitiatingParty{
   public validate(){
     assert(this.organizationsIDs.length > 0, "Need at least one organization");
     assert(this.organizationsIDs[0].issuer === 'CBI',
-      'First organization id must contain a CBI issued CUC code');
+      `First organization id must contain a CBI issued CUC code
+       value: ${this.organizationsIDs[0].issuer}
+       errorcode: BE05`);
+
+    if(this.organizationsIDs.length > 1){
+
+      var notADEs = this.organizationsIDs
+        .slice(1)
+        .filter( other => other.issuer !== 'ADE');
+
+      assert(notADEs.length === 0,
+        `Subsequent Other instances must be ADEs,
+         errorcode: BE15`);
+    }
+
+    this.organizationsIDs.forEach( orgID => orgID.validate());
+
   }
 
   public static fromElement(el: libxml.Element):InitiatingParty{
@@ -33,7 +47,6 @@ export class InitiatingParty{
         break;
 
         case 'Id':
-
           const childElements =
           node
             .childNodes()
@@ -41,7 +54,6 @@ export class InitiatingParty{
             .childNodes();
 
           for( const other of childElements){
-
             if(other.name() === 'Othr')
               initiatingParty.organizationsIDs.push(Other.fromElement(other));
           }
@@ -79,7 +91,7 @@ export class Other{
     if(this.issuer !== 'ADE' && this.issuer !== 'CBI'){
 
       throw new Error(`
-        [Other]: The issuer must be either ADE or CBI
+        The issuer must be either ADE or CBI
         value: ${this.issuer}
       `);
     }
@@ -87,7 +99,7 @@ export class Other{
     //https://github.com/linkmesrl/codice_fiscale_validator.git
     if(this.issuer === 'CBI' && this.identification.length !== 8 ){
       throw new Error(`
-        [Other]: If the issuer equals CBI then the identification must be a CUC
+        If the issuer equals CBI then the identification must be a CUC
         value: ${this.issuer}
         errcode: NARR
       `);
@@ -99,16 +111,13 @@ export class Other{
         ! /^(IT)?[0-9]{11}$/.test(this.identification)
       )
     ){
-
       throw new Error(`
-        [Other]: If the issuer equals ADE then the identification must be a
+        If the issuer equals ADE then the identification must be a
         partita IVA or a codice fiscale
         value: ${this.identification}
         errcode: NARR
       `);
     }
-
-
   }
 
   public static fromElement(otherElement: libxml.Element): Other{
