@@ -16,6 +16,8 @@
     "files": [
         "./index.ts",
         "./lib/CBIOperation.ts",
+        "./lib/LocalInstruments.ts",
+        "./lib/PaymentInfo.ts",
         "./lib/SDDReq.ts",
         "./lib/initiatingParty.ts",
         "./lib/logical_message.ts",
