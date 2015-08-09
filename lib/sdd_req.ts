@@ -1,4 +1,4 @@
-import {CBIOperation} from './CBIOperation';
+import {CBIOperation} from './cbi_operation';
 import {resolve} from 'path';
 
 export class SDDRequest extends CBIOperation{

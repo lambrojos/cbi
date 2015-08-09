@@ -1,7 +1,7 @@
 'use strict';
 var expect = require('chai').expect;
-var Other = require('../lib/initiatingParty').Other;
-var InitiatingParty = require('../lib/initiatingParty').InitiatingParty;
+var Other = require('../lib/initiating_party').Other;
+var InitiatingParty = require('../lib/initiating_party').InitiatingParty;
 
 
 describe('The InitiatingParty class', function() {

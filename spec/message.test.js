@@ -1,6 +1,7 @@
+'use strict';
 var expect = require('chai').expect;
 var LogicalMessage = require('../lib/logical_message').LogicalMessage;
-var SDDReq = require('../lib/SDDReq').SDDRequest;
+var SDDReq = require('../lib/sdd_req').SDDRequest;
 var path = require('path');
 var xmlPath = path.resolve(__dirname, './testdata/SDDRequest.xml');
 
@@ -22,8 +23,17 @@ describe('Logical message class', function() {
     .then(function(msg){
 
       expect(msg).not.to.be.null;
+
+      //TODO trova il modo di testare che sia uguale all'originale
+      console.log(msg.toXMLDoc().toString());
+
       done();
     });
+  });
+
+  xit('allows only unique payment info ids inside the same document', function(){
+
+
   });
 
   it('doesn\'t accept a future creation date', function() {

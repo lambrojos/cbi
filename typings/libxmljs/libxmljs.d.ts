@@ -9,6 +9,11 @@ declare module "libxmljs-mt" {
     export function parseHtmlString(source:string):HTMLDocument;
 
 
+    export interface IElementWrapper {
+      validate();
+      appendElement(el: Element);
+    }
+
     export class Document {
         validate(XSDDocument: Document):boolean;
         validationErrors: Array<Object>;

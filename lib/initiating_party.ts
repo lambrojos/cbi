@@ -4,14 +4,12 @@ import * as assert from 'assert';
 
 type XMLDoc = libxml.Document;
 
+//export class InitiatingParty implements libxml.IElementWrapper{
 export class InitiatingParty{
 
   public name: string;
   public organizationsIDs: Array<Other>;
 
-  public constructor(){
-    this.organizationsIDs=[];
-  }
 
   public validate(){
     assert(this.organizationsIDs.length > 0, "Need at least one organization");
@@ -35,15 +33,20 @@ export class InitiatingParty{
 
   }
 
-  public static fromElement(el: libxml.Element):InitiatingParty{
+  public constructor(el?: libxml.Element){
 
-    const initiatingParty = new InitiatingParty;
+    this.organizationsIDs = [];
+
+    if(!el){ return; }
+
     for(const node of el.childNodes()){
+
+      if(!el){ return; }
 
       switch(node.name()){
 
         case 'Nm':
-          initiatingParty.name = node.text();
+          this.name = node.text();
         break;
 
         case 'Id':
@@ -55,12 +58,11 @@ export class InitiatingParty{
 
           for( const other of childElements){
             if(other.name() === 'Othr')
-              initiatingParty.organizationsIDs.push(Other.fromElement(other));
+              this.organizationsIDs.push(new Other(other));
           }
         break;
       }
     }
-    return initiatingParty;
   }
 
   public appendElement(parent: libxml.Element){
@@ -120,24 +122,23 @@ export class Other{
     }
   }
 
-  public static fromElement(otherElement: libxml.Element): Other{
+  public constructor(otherElement?: libxml.Element){
 
-    const other = new Other;
+    if(!otherElement){ return }
+
     for(const el of otherElement.childNodes()){
 
       switch(el.name()){
 
         case 'Id':
-          other.identification = el.text();
+          this.identification = el.text();
         break;
 
         case 'Issr':
-          other.issuer = el.text();
+          this.issuer = el.text();
         break;
       }
     }
-
-    return other;
   }
 
   public appendElement(parent: libxml.Element){

@@ -1,9 +1,10 @@
 ///<reference path="../typings/tsd.d.ts"/>
 
-import {CBIOperation} from "./CBIOperation";
+import {CBIOperation} from "./cbi_operation";
 import {readXML} from "./xml_utils";
 import {v4 as getUUID} from 'uuid';
-import {InitiatingParty} from "./initiatingParty";
+import {InitiatingParty} from "./initiating_party";
+import {PaymentInfo} from "./payment_info";
 import * as libxml from 'libxmljs-mt';
 import * as assert from "assert";
 
@@ -48,8 +49,16 @@ export class LogicalMessage<T extends CBIOperation> {
    */
   private numberOfTransactions: number;
 
+  private checksum: number;
 
-  public constructor(private transactionClass: typeof CBIOperation){}
+
+  public paymentInfos: Array<PaymentInfo>;
+
+
+  public constructor(private transactionClass: typeof CBIOperation){
+
+    this.paymentInfos = [];
+  }
 
   /**
   * Validates this message
@@ -80,7 +89,6 @@ export class LogicalMessage<T extends CBIOperation> {
     let doc = new libxml.Document(),
     xsdName = this.transactionClass.XSDName;
 
-  //public validate(): boolean{}
     const root = doc.node("CBISDDReqLogMsg")
     root.attr({
       'xmlns': `urn:CBI:xsd:${xsdName}`,
@@ -89,6 +97,10 @@ export class LogicalMessage<T extends CBIOperation> {
     });
 
     this.addHeader(root);
+
+    for(const paymentInfo of this.paymentInfos){
+      paymentInfo.appendToElement(root);
+    }
     return doc;
   }
 
@@ -101,7 +113,9 @@ export class LogicalMessage<T extends CBIOperation> {
 
     const header = root.node('GrpHdr');
     header.node('MsgId', this.messageIdentification);
+    header.node('CtrlSum', this.checksum.toString());
     header.node('CreDtTm', this._creationDateTime.toISOString());
+    header.node('NbOfTxs', this._creationDateTime.toISOString());
 
     this.initiatingParty.appendElement(header);
   }
@@ -121,44 +135,54 @@ export class LogicalMessage<T extends CBIOperation> {
     let checkSum: number,
     nTransactions: number;
 
-    doc.childNodes().forEach(function(rootChild: libxml.Element){
+    const childNodes = doc.childNodes();
 
-      if(rootChild.name() === "GrpHdr"){
-        rootChild.childNodes().forEach(function(el){
+    for(const rootChild of childNodes){
 
-          switch(el.name()){
+      const name = rootChild.name();
 
-            case "MsgId":
-              lm.messageIdentification = el.text();
+      if(name === 'text') continue;
+
+      if(name === "GrpHdr"){
+
+        const hdrNodes = rootChild.childNodes();
+
+        for(const el of hdrNodes){
+
+          const hdrName = el.name();
+          if(hdrName === 'text') continue
+
+          switch(hdrName){
+
+            case "MsgId": lm.messageIdentification = el.text();
             break;
 
-            case "CreDtTm":
-              lm.creationDateTime = el.text();
+            case "CreDtTm": lm.creationDateTime = el.text();
             break;
 
-            case "NbOfTxs":
-              nTransactions = parseInt(el.text(),10);
+            case "NbOfTxs": lm.numberOfTransactions = parseInt(el.text(), 10);
             break;
 
-            case "CtrlSum":
-              checkSum = parseInt(el.text(), 10);
+            case "CtrlSum": lm.checksum = parseInt(el.text(), 10);
             break;
 
-            case "InitgPty":
-              lm.initiatingParty = InitiatingParty.fromElement(el);
+            case "InitgPty": lm.initiatingParty = new InitiatingParty(el);
             break;
           }
-        });
+        }
       }
 
-    });
+      else if(name === 'PmtInf'){
+        lm.paymentInfos.push(new PaymentInfo(rootChild));
+      }
+    }
 
     assertArray([
       lm.initiatingParty,
       lm.creationDateTime,
       lm.messageIdentification,
-      nTransactions,
-      checkSum]);
+      lm.checksum,
+      lm.numberOfTransactions]);
 
     return lm;
   }

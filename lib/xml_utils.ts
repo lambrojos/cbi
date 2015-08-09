@@ -1,10 +1,10 @@
 ///<reference path="../typings/tsd.d.ts"/>
 import * as P from 'bluebird';
-import {Document} from 'libxmljs-mt';
+import * as libxml from 'libxmljs-mt';
 import {readFile} from 'fs';
 
 const readFileAsync = P.promisify(readFile);
-const parseXMLAsync = P.promisify(Document.fromXmlAsync);
+const parseXMLAsync = P.promisify(libxml.Document.fromXmlAsync);
 
   export function readXML(xmlPath: string, xsdPath: string){
 
@@ -27,5 +27,18 @@ const parseXMLAsync = P.promisify(Document.fromXmlAsync);
         const e = new Error('Invalid document.'+xmlDoc.validationErrors.toString());
       }
       return xmlDoc;
-    });
-};
+  });
+
+
+  export function parseNode(el:libxml.Element, def:any, elementWrapper, after:any ){
+
+    const keys = Object.keys(def);
+
+    for(const node of el.childNodes()){
+
+      const name = node.name();
+      if (name === 'text') continue;
+
+      
+    }
+  }
