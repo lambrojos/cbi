@@ -12,3 +12,13 @@ export interface IElementWrapper {
   appendToElement(el: libxml.Element);
   //new(el?: libxml.Element);
 }
+
+export interface TagDef{
+
+  tag: string;
+  prop: string;
+
+  set?: (el:libxml.Element, prop:any)=>void;
+  get?: (el:libxml.Element)=>any;
+
+}

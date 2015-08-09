@@ -1,11 +1,50 @@
 ///<reference path="../typings/tsd.d.ts"/>
 import * as libxml from 'libxmljs-mt';
 import * as assert from 'assert';
+import * as xml from './xml_utils';
+import {IElementWrapper} from './cbi_operation';
 
 type XMLDoc = libxml.Document;
 
+const ipDef = [
+  {
+    tag: 'Nm',
+    prop: 'name'
+  },
+
+  {
+    tag: 'Id',
+    prop: 'organizationsIDs',
+    get: (node)=>{
+
+      const organizations=[];
+      const childElements = node
+        .childNodes()
+        .filter( (node) => node.name() === 'OrgId')[0]
+        .childNodes();
+
+      for( const other of childElements){
+        if(other.name() === 'Othr')
+          organizations.push(new Other(other));
+      }
+
+      return organizations;
+    },
+
+    set: (el, prop)=>{
+
+      const orgRoot:libxml.Element = el.node('Id').node('OrgId');
+
+      for (const orgId of prop){
+        orgId.appendElement(orgRoot);
+      }
+    }
+  }
+
+];
+
 //export class InitiatingParty implements libxml.IElementWrapper{
-export class InitiatingParty{
+export class InitiatingParty implements IElementWrapper{
 
   public name: string;
   public organizationsIDs: Array<Other>;
@@ -36,50 +75,13 @@ export class InitiatingParty{
   public constructor(el?: libxml.Element){
 
     this.organizationsIDs = [];
-
-    if(!el){ return; }
-
-    for(const node of el.childNodes()){
-
-      if(!el){ return; }
-
-      switch(node.name()){
-
-        case 'Nm':
-          this.name = node.text();
-        break;
-
-        case 'Id':
-          const childElements =
-          node
-            .childNodes()
-            .filter( (node) => node.name() === 'OrgId')[0]
-            .childNodes();
-
-          for( const other of childElements){
-            if(other.name() === 'Othr')
-              this.organizationsIDs.push(new Other(other));
-          }
-        break;
-      }
-    }
+    xml.readNode(el, ipDef, this);
   }
 
-  public appendElement(parent: libxml.Element){
+  public appendToElement(parent: libxml.Element){
 
     this.validate();
-    const localRoot = parent.node('InitgPty');
-
-    //name is optional
-    if(this.name){
-      localRoot.node('Nm', this.name);
-    }
-
-    const orgRoot:libxml.Element = localRoot.node('Id').node('OrgId');
-
-    for (const orgId of this.organizationsIDs){
-      orgId.appendElement(orgRoot);
-    }
+    xml.writeNode(parent.node('InitgPty'), ipDef, this);
   }
 }
 

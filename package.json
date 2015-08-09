@@ -32,6 +32,7 @@
     "bluebird": "^2.9.34",
     "codice_fiscale_validator": "git+https://github.com/linkmesrl/codice_fiscale_validator.git",
     "libxmljs-mt": "^0.14.2",
+    "lodash": "^3.10.1",
     "uuid": "^2.0.1"
   }
 }

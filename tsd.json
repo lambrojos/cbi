@@ -19,6 +19,9 @@
     },
     "uuid/UUID.d.ts": {
       "commit": "147cc7a8b375d97bf82afb34614268bbb77d18d5"
+    },
+    "lodash/lodash.d.ts": {
+      "commit": "3b0f362204ea965952dafdb682a5274d527ef9d0"
     }
   }
 }

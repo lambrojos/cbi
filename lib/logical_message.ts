@@ -117,7 +117,7 @@ export class LogicalMessage<T extends CBIOperation> {
     header.node('CreDtTm', this._creationDateTime.toISOString());
     header.node('NbOfTxs', this._creationDateTime.toISOString());
 
-    this.initiatingParty.appendElement(header);
+    this.initiatingParty.appendToElement(header);
   }
 
 

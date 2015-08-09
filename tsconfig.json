@@ -28,6 +28,7 @@
         "./typings/assert/assert.d.ts",
         "./typings/bluebird/bluebird.d.ts",
         "./typings/libxmljs/libxmljs.d.ts",
+        "./typings/lodash/lodash.d.ts",
         "./typings/node/node.d.ts",
         "./typings/ramda.d.ts",
         "./typings/tsd.d.ts",

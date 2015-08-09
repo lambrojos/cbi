@@ -2,6 +2,8 @@
 import * as P from 'bluebird';
 import * as libxml from 'libxmljs-mt';
 import {readFile} from 'fs';
+import * as _ from 'lodash';
+import * as cbi from './cbi_operation';
 
 const readFileAsync = P.promisify(readFile);
 const parseXMLAsync = P.promisify(libxml.Document.fromXmlAsync);
@@ -27,18 +29,42 @@ const parseXMLAsync = P.promisify(libxml.Document.fromXmlAsync);
         const e = new Error('Invalid document.'+xmlDoc.validationErrors.toString());
       }
       return xmlDoc;
-  });
-
-
-  export function parseNode(el:libxml.Element, def:any, elementWrapper, after:any ){
-
-    const keys = Object.keys(def);
-
-    for(const node of el.childNodes()){
-
-      const name = node.name();
-      if (name === 'text') continue;
-
-      
-    }
+    });
   }
+
+
+  /*
+  {
+    tag:
+    prop:
+    get:
+    set:
+  }*/
+
+export function readNode(el:libxml.Element, defs:Array<cbi.TagDef>, elementWrapper: cbi.IElementWrapper){
+
+  if(!el) return;
+
+  const tags = _.indexBy(defs,'tag');
+
+  for(const node of el.childNodes()){
+
+    const def = tags[ node.name()];
+    if ( def === undefined ) continue;
+
+    elementWrapper[def.prop] = typeof def.get === 'function'?
+      def.get(node): node.text();
+  }
+}
+
+export function writeNode(el:libxml.Element, defs: Array<cbi.TagDef>, elementWrapper: cbi.IElementWrapper){
+
+  for(const def of defs){
+    if(elementWrapper[def.prop] === undefined) continue;
+
+    if(typeof def.get === 'function' )
+      def.set(el, elementWrapper[def.prop]);
+    else
+      el.node(def.tag, elementWrapper[def.prop]);
+  }
+}
