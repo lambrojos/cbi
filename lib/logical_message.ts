@@ -51,7 +51,6 @@ export class LogicalMessage<T extends CBIOperation> {
 
   private checksum: number;
 
-
   public paymentInfos: Array<PaymentInfo>;
 
 
@@ -65,6 +64,7 @@ export class LogicalMessage<T extends CBIOperation> {
   * (only application level validations are run)
   */
   public validate(){
+
     if(!this.messageIdentification){
       this.generateMessageIdentification();
     }
@@ -72,6 +72,23 @@ export class LogicalMessage<T extends CBIOperation> {
     if(!this._creationDateTime){
       this._creationDateTime = new Date();
     }
+
+    let lastPaymentInfoId = null;
+    for( const paymentInfo of this.paymentInfos){
+      if(paymentInfo.paymentInfoId === lastPaymentInfoId){
+        throw new Error('Non unique payment info id. errocode:NARR');
+      }
+      lastPaymentInfoId = paymentInfo.paymentInfoId;
+    }
+
+    let lastLocalInstrument = null;
+    for( const paymentInfo of this.paymentInfos){
+      if(lastLocalInstrument && paymentInfo.localInstrument !== lastLocalInstrument){
+        throw new Error('Local instrument must be the same for all payment info. errocode:NARR');
+      }
+      lastLocalInstrument = paymentInfo.localInstrument;
+    }
+
   }
 
   /**

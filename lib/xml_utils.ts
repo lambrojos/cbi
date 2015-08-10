@@ -20,7 +20,6 @@ const parseXMLAsync = P.promisify(libxml.Document.fromXmlAsync);
     })
 
     // break from all that sync parsing
-
     .then(function(docs){
       const [xmlDoc, xsdDoc] = docs;
       var isValid = xmlDoc.validate(xsdDoc);
@@ -41,30 +40,40 @@ const parseXMLAsync = P.promisify(libxml.Document.fromXmlAsync);
     set:
   }*/
 
-export function readNode(el:libxml.Element, defs:Array<cbi.TagDef>, elementWrapper: cbi.IElementWrapper){
+export function readNode(el:libxml.Element, defs:Array<cbi.ElementDef>, elementWrapper: cbi.ElementWrapper){
 
   if(!el) return;
 
   const tags = _.indexBy(defs,'tag');
 
-  for(const node of el.childNodes()){
+  for(const childNode of el.childNodes()){
 
-    const def = tags[ node.name()];
+
+    const def = tags[ childNode.name()];
+
     if ( def === undefined ) continue;
 
+    if(def.children){
+      readNode(childNode, def.children, elementWrapper);
+      continue;
+    }
+
     elementWrapper[def.prop] = typeof def.get === 'function'?
-      def.get(node): node.text();
+      def.get(childNode): childNode.text();
   }
 }
 
-export function writeNode(el:libxml.Element, defs: Array<cbi.TagDef>, elementWrapper: cbi.IElementWrapper){
+export function writeNode(el:libxml.Element, defs: Array<cbi.ElementDef>, elementWrapper: cbi.ElementWrapper){
 
   for(const def of defs){
-    if(elementWrapper[def.prop] === undefined) continue;
 
-    if(typeof def.get === 'function' )
-      def.set(el, elementWrapper[def.prop]);
+    if(def.children){
+      return writeNode(el.node(def.tag), def.children,elementWrapper);
+    }
+
+    if(typeof def.set === 'function' )
+      def.set(elementWrapper[def.prop], el.node(def.tag));
     else
-      el.node(def.tag, elementWrapper[def.prop]);
+      el.node(def.tag, elementWrapper[def.prop])
   }
 }

@@ -2,15 +2,13 @@
 import * as libxml from 'libxmljs-mt';
 import * as assert from 'assert';
 import * as xml from './xml_utils';
-import {IElementWrapper} from './cbi_operation';
+import {IElementWrapper,ElementWrapper} from './cbi_operation';
 
 type XMLDoc = libxml.Document;
 
 const ipDef = [
-  {
-    tag: 'Nm',
-    prop: 'name'
-  },
+
+  { tag: 'Nm', prop: 'name' },
 
   {
     tag: 'Id',
@@ -31,24 +29,21 @@ const ipDef = [
       return organizations;
     },
 
-    set: (el, prop)=>{
-
-      const orgRoot:libxml.Element = el.node('Id').node('OrgId');
-
+    set: (prop, el)=>{
+      const orgRoot:libxml.Element = el.node('OrgId');
       for (const orgId of prop){
-        orgId.appendElement(orgRoot);
+        orgId.appendToElement(orgRoot);
       }
     }
   }
-
 ];
 
+
 //export class InitiatingParty implements libxml.IElementWrapper{
-export class InitiatingParty implements IElementWrapper{
+export class InitiatingParty extends ElementWrapper{
 
   public name: string;
   public organizationsIDs: Array<Other>;
-
 
   public validate(){
     assert(this.organizationsIDs.length > 0, "Need at least one organization");
@@ -69,23 +64,22 @@ export class InitiatingParty implements IElementWrapper{
     }
 
     this.organizationsIDs.forEach( orgID => orgID.validate());
-
   }
 
   public constructor(el?: libxml.Element){
-
+    this.rootNodeName = 'InitgPty';
+    this.elementDef = ipDef;
     this.organizationsIDs = [];
-    xml.readNode(el, ipDef, this);
-  }
-
-  public appendToElement(parent: libxml.Element){
-
-    this.validate();
-    xml.writeNode(parent.node('InitgPty'), ipDef, this);
+    super(el);
   }
 }
 
-export class Other{
+const otherDef = [
+  { tag: 'Id', prop: 'identification' },
+  { tag: 'Issr', prop: 'issuer' }
+];
+
+export class Other extends ElementWrapper{
 
   public identification: string
   public issuer: string;
@@ -124,30 +118,9 @@ export class Other{
     }
   }
 
-  public constructor(otherElement?: libxml.Element){
-
-    if(!otherElement){ return }
-
-    for(const el of otherElement.childNodes()){
-
-      switch(el.name()){
-
-        case 'Id':
-          this.identification = el.text();
-        break;
-
-        case 'Issr':
-          this.issuer = el.text();
-        break;
-      }
-    }
-  }
-
-  public appendElement(parent: libxml.Element){
-
-    this.validate();
-    const otherNode = parent.node('Othr');
-    otherNode.node('Id', this.identification);
-    otherNode.node('Issr', this.issuer);
+  public constructor(el?: libxml.Element){
+    this.rootNodeName = 'Othr';
+    this.elementDef = otherDef;
+    super(el);
   }
 }

@@ -1,11 +1,50 @@
 ///<reference path="../typings/tsd.d.ts"/>
 import * as libxml from 'libxmljs-mt';
 import * as assert from 'assert';
-import {IElementWrapper } from './cbi_operation';
+import {ElementWrapper } from './cbi_operation';
 
 type XMLDoc = libxml.Document;
 
-export class PaymentInfo implements IElementWrapper{
+const paymentInfoDef = [
+  {tag: 'PmtInfId', prop: 'paymentInfoId'},
+  {tag: 'PmtMtd', prop: 'paymentMethod'},
+  {
+    tag: 'ReqdColltnDt',
+    prop: 'requestCollectionDate',
+    get: val =>  new Date(val.text()),
+    set: (date, el) =>  el.text(date.toISOString())
+  },
+  {
+    tag: 'PmtTpInf',
+    children: [
+      { tag:'SeqTp', prop: 'sequenceType' },
+      { tag: 'LclInstrm', children:[
+        { tag: 'Cd', prop: 'localInstrument' }
+      ]},
+      { tag: 'SvcLvl', children:[
+        { tag: 'Cd', prop: 'serviceLevel' }
+      ]},
+      { tag: 'CtgyPurp', children:[
+        { tag: 'Cd', prop: 'categoryPurpose' }
+      ]}
+    ]
+  }
+];
+
+export class PaymentInfo extends ElementWrapper{
+
+  public static localInstrumentCodes = [
+    'CORE',
+    'B2B',
+    'COR1'
+  ];
+
+  public static sequenceTypes = [
+    'FRST',
+    'RCUR',
+    'FNAL',
+    'OOFF'
+  ];
 
 //PmtInflocal root
   public paymentInfoId: string;
@@ -31,58 +70,21 @@ export class PaymentInfo implements IElementWrapper{
 
   public validate():void {
 
-  }
+    assert(
+      PaymentInfo.localInstrumentCodes.indexOf(this.localInstrument) >= 0,
+      'Unknown local instrument '+this.localInstrument+' errcode: NARR'
+    );
 
-  public appendToElement(el: libxml.Element){
-
-    this.validate();
-    const pmtInfo = el.node('PmtInfo');
-
-    pmtInfo.node('PmtInfId', this.paymentInfoId);
-    pmtInfo.node('PmtMtd', this.paymentMethod);
-    pmtInfo.node('PmtTpInf')
-      .node('SeqTp', this.sequenceType);
-
-    pmtInfo.node('ReqdColltnDt', this.requestCollectionDate.toISOString());
+    assert(
+      PaymentInfo.sequenceTypes.indexOf(this.sequenceType) >= 0 ,
+      'Unknown sequence type '+this.sequenceType+' errcode: NARR'
+    );
   }
 
   public constructor(el?: libxml.Element){
-
-    if(!el){ return };
-
-    for(const node of el.childNodes()){
-
-      const name = node.name();
-      switch(name){
-
-        case 'text': continue; break;
-
-        case 'PmtInfId': this.paymentInfoId = node.text();
-        break;
-
-        case 'PmtMtd': this.paymentMethod = node.text();
-        break;
-
-        case 'ReqdColltnDt': this.requestCollectionDate = new Date(node.text());
-        break;
-        //payment type info could be a class on its own?
-        case 'PmtTpInf':
-
-          for (const infoNode of node.childNodes()){
-
-            const infoName = infoNode.name();
-
-            switch(infoName){
-
-              case 'text': continue; break;
-
-              case 'SeqTp': this.sequenceType = infoNode.text();
-              break;
-            }
-          }
-        break;
-      }
-    }
+    this.rootNodeName = 'PmtInfo';
+    this.elementDef = paymentInfoDef;
+    super(el);
   }
 
 }

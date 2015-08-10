@@ -7,7 +7,7 @@ var xmlPath = path.resolve(__dirname, './testdata/SDDRequest.xml');
 
 describe('Logical message class', function() {
 
-  it('parses and validates and xml document', function(done) {
+  xit('parses and validates and xml document', function(done) {
 
     LogicalMessage.fromXMLFile(xmlPath, SDDReq)
     .then(function(logicalMsg){
@@ -31,10 +31,51 @@ describe('Logical message class', function() {
     });
   });
 
-  xit('allows only unique payment info ids inside the same document', function(){
+  it('allows only unique payment info ids inside the same document', function(done){
 
+    LogicalMessage.fromXMLFile(xmlPath, SDDReq)
+    .then(function(msg){
 
+      msg.validate();
+
+      msg.paymentInfos[0].paymentInfoId = msg.paymentInfos[1].paymentInfoId;
+
+      var bad = function() {
+        msg.validate();
+      };
+
+      expect(bad).to.throw('Non unique payment info id');
+
+      done();
+    });
   });
+
+  xit('local instrument code must be coherent with service name', function() {
+  });
+
+  it('local instrument code must be the same for the payment infos', function(done){
+
+    LogicalMessage.fromXMLFile(xmlPath, SDDReq)
+    .then(function(msg){
+
+      msg.validate();
+
+      msg.paymentInfos[0].localInstrument = 'B2B';
+
+      var bad = function() {
+        msg.validate();
+      };
+
+      expect(bad).to.throw('Local instrument must be the same for all payment info');
+
+      done();
+    });
+  });
+
+  xit(`se amendment indicator è true e l\'original debtor
+    agent è valorizzato come SMNDA il campo LclInstr deve essere FRST`, function(){
+  });
+
 
   it('doesn\'t accept a future creation date', function() {
 
