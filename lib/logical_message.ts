@@ -89,6 +89,17 @@ export class LogicalMessage<T extends CBIOperation> {
       lastLocalInstrument = paymentInfo.localInstrument;
     }
 
+    // validate uniqueness of directDebitTx.e2eId 
+
+    let e2eIds = [];
+    for (const paymentInfo of this.paymentInfos) {
+      for( let id of _.pluck(paymentInfo.directDebt, 'e2eId')){
+        e2eIds.push(id);
+      }
+    }
+    if (_.uniq(e2eIds).length !== e2eIds.length) {
+        throw new Error('Non unique directDebtTx e2eId. errocode:NARR');
+    }
   }
 
   /**

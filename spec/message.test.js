@@ -100,7 +100,16 @@ describe('Logical Message validation on DirectDebitTx', function() {
   it('should validate e2eId uniqueness', function(done) {
     LogicalMessage.fromXMLFile(xmlPath, SDDReq)
     .then(function(msg){
-      // console.log(msg);
+
+      // overring id to have a duplicate in tes
+      msg.paymentInfos[0].directDebt[0].e2eId = '0003';
+
+      var bad = function(){
+        msg.validate();
+      };
+
+      expect(bad).to.throw('Non unique directDebtTx e2eId. errocode:NARR');
+
       done();
     });
   });

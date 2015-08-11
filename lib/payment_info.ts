@@ -71,14 +71,14 @@ const paymentInfoDef = [
   },
   {
     tag: 'DrctDbtTxInf',
-    prop: 'DirectDebt',
+    prop: 'directDebt',
     get: (node) => {
 
       // console.log(new DirectDebitTx(node));
       
 
       // this.directDebitTx.push(new DirectDebitTx(node))
-      // return node;
+      return new DirectDebitTx(node);
     }
   }
 ];
@@ -173,7 +173,7 @@ export class PaymentInfo extends ElementWrapper{
   public constructor(el?: libxml.Element){
     this.rootNodeName = 'PmtInfo';
     this.elementDef = paymentInfoDef;
-    this.DirectDebt = [];
+    this.directDebt = [];
     super(el);
   }
 
