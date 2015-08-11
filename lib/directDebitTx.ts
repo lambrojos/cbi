@@ -2,7 +2,7 @@
 import * as libxml from 'libxmljs-mt';
 import * as assert from 'assert';
 import {ElementWrapper } from './cbi_operation';
-const IBAN = require('iban');
+import IBAN = require('iban');
 
 type XMLDoc = libxml.Document;
 

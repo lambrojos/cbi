@@ -7,6 +7,7 @@ import {InitiatingParty} from "./initiating_party";
 import {PaymentInfo} from "./payment_info";
 import * as libxml from 'libxmljs-mt';
 import * as assert from "assert";
+import * as _ from 'lodash';
 
 type XMLDoc = libxml.Document;
 
@@ -73,12 +74,11 @@ export class LogicalMessage<T extends CBIOperation> {
       this._creationDateTime = new Date();
     }
 
-    let lastPaymentInfoId = null;
+    const array = _.pluck(this.paymentInfos, 'paymentInfoId');
     for( const paymentInfo of this.paymentInfos){
-      if(paymentInfo.paymentInfoId === lastPaymentInfoId){
+        if (_.uniq(array).length !== array.length) {
         throw new Error('Non unique payment info id. errocode:NARR');
       }
-      lastPaymentInfoId = paymentInfo.paymentInfoId;
     }
 
     let lastLocalInstrument = null;

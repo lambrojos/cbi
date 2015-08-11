@@ -4,6 +4,7 @@ var LogicalMessage = require('../lib/logical_message').LogicalMessage;
 var SDDReq = require('../lib/sdd_req').SDDRequest;
 var path = require('path');
 var xmlPath = path.resolve(__dirname, './testdata/SDDRequest.xml');
+var _ = require('lodash');
 
 describe('Logical message class', function() {
 
@@ -38,7 +39,8 @@ describe('Logical message class', function() {
 
       msg.validate();
 
-      msg.paymentInfos[0].paymentInfoId = msg.paymentInfos[1].paymentInfoId;
+
+      msg.paymentInfos[2] = _.clone(msg.paymentInfos[0]);
 
       var bad = function() {
         msg.validate();
