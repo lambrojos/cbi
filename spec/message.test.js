@@ -95,3 +95,13 @@ describe('Logical message class', function() {
 
   });
 });
+
+describe('Logical Message validation on DirectDebitTx', function() {
+  it('should validate e2eId uniqueness', function(done) {
+    LogicalMessage.fromXMLFile(xmlPath, SDDReq)
+    .then(function(msg){
+      // console.log(msg);
+      done();
+    });
+  });
+});

@@ -192,6 +192,7 @@ export class LogicalMessage<T extends CBIOperation> {
       else if(name === 'PmtInf'){
         lm.paymentInfos.push(new PaymentInfo(rootChild));
       }
+      // TODO add directDebitTx
     }
 
     assertArray([

@@ -57,9 +57,26 @@ export function readNode(el:libxml.Element, defs:Array<cbi.ElementDef>, elementW
       readNode(childNode, def.children, elementWrapper);
       continue;
     }
+    // console.log(def.prop, Array.isArray(elementWrapper[def.prop]));
+    
+    var getValue;
+    // se ho definito una funzione get la eseguo per ottenere il valore
+    if (typeof def.get === 'function'){
+      getValue = def.get(childNode);
+    }
+    // altrimenti leggo il contenuto
+    else{
+      getValue = childNode.text();
+    }
 
-    elementWrapper[def.prop] = typeof def.get === 'function'?
-      def.get(childNode): childNode.text();
+    // se il contenuto è un array faccio il push
+    if(Array.isArray(elementWrapper[def.prop])){
+      elementWrapper[def.prop].push(getValue);
+    }
+    // altrimenti sovrascrivo
+    else{
+      elementWrapper[def.prop] = getValue;
+    }
   }
 }
 

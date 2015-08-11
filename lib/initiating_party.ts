@@ -23,10 +23,9 @@ const ipDef = [
 
       for( const other of childElements){
         if(other.name() === 'Othr')
-          organizations.push(new Other(other));
+          return new Other(other);
       }
 
-      return organizations;
     },
 
     set: (prop, el)=>{
@@ -47,6 +46,8 @@ export class InitiatingParty extends ElementWrapper{
 
   public validate(){
     assert(this.organizationsIDs.length > 0, "Need at least one organization");
+    console.log(this.organizationsIDs);
+    
     assert(this.organizationsIDs[0].issuer === 'CBI',
       `First organization id must contain a CBI issued CUC code
        value: ${this.organizationsIDs[0].issuer}

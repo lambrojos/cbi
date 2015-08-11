@@ -2,6 +2,7 @@
 import * as libxml from 'libxmljs-mt';
 import * as assert from 'assert';
 import {ElementWrapper } from './cbi_operation';
+import {DirectDebitTx} from "./directDebitTx";
 
 type XMLDoc = libxml.Document;
 
@@ -68,6 +69,18 @@ const paymentInfoDef = [
         }]
     }]
   },
+  {
+    tag: 'DrctDbtTxInf',
+    prop: 'DirectDebt',
+    get: (node) => {
+
+      // console.log(new DirectDebitTx(node));
+      
+
+      // this.directDebitTx.push(new DirectDebitTx(node))
+      // return node;
+    }
+  }
 ];
 
 export class PaymentInfo extends ElementWrapper{
@@ -141,6 +154,7 @@ export class PaymentInfo extends ElementWrapper{
   public creditorSchemaId: string;
 
 
+  public DirectDebt: Array<DirectDebitTx>;
 
 
   public validate():void {
@@ -159,6 +173,7 @@ export class PaymentInfo extends ElementWrapper{
   public constructor(el?: libxml.Element){
     this.rootNodeName = 'PmtInfo';
     this.elementDef = paymentInfoDef;
+    this.DirectDebt = [];
     super(el);
   }
 
