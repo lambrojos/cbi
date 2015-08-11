@@ -8,6 +8,7 @@ cos'è il service name j23?
 
 xsd valida la presenza?
 
+Cos'è **AM03** e **AM09** ? (Direct Debit Transaction Information => Instructed Amount)
 
 (per paolo)
 L18: 

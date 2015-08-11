@@ -15,8 +15,8 @@ const parseXMLAsync = P.promisify(libxml.Document.fromXmlAsync);
     .then(function(buffers){
 
       return P.all(
-        buffers.map(buffer => parseXMLAsync(buffer, {})
-      ));
+        buffers.map(buffer => parseXMLAsync(buffer, {}))
+      );
     })
 
     // break from all that sync parsing
