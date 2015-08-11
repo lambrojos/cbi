@@ -29,7 +29,7 @@ const directDebitTxDef = [
         el.attr({ Ccy: val.currency });
         el.text(val.amount);
     }
-  }, // validate
+  },
   { 
     tag: 'DrctDbtTx',
     children: [
@@ -55,7 +55,7 @@ const directDebitTxDef = [
       {
         tag: 'Id',
         children: [
-          {tag:'IBAN', prop: 'IBAN'} //validate l'iban
+          {tag:'IBAN', prop: 'IBAN'}
         ]
       }
     ]

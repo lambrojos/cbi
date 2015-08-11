@@ -49,8 +49,8 @@ export function readNode(el:libxml.Element, defs:Array<cbi.ElementDef>, elementW
   for(const childNode of el.childNodes()){
 
 
-    const def = tags[ childNode.name()];
 
+    const def = tags[ childNode.name()];
     if ( def === undefined ) continue;
 
     if(def.children){

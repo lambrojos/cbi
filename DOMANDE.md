@@ -11,10 +11,10 @@ xsd valida la presenza?
 Cos'è **AM03** e **AM09** ? (Direct Debit Transaction Information => Instructed Amount)
 
 (per paolo)
-L18: 
+L18:
 Regola: se presente e valorizzato con "true" è richiesto l'accredito cumulativo; se valorizzato con "false", è richiesto l'accredito singolo.
 In mancanza di specifici accordi bilaterali relativamente all'utilizzo di tale campo, l’eventuale valorizzazione da parte del cliente non obbliga la banca di accredito ad applicare il booking richiesto.
 
 
 (per paolo)
-Campi utilizzabili quali AOS SEPA per la comunità CBI
+Ci interessa gli indirizzi postali dei creditori?
