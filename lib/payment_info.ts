@@ -28,7 +28,46 @@ const paymentInfoDef = [
         { tag: 'Cd', prop: 'categoryPurpose' }
       ]}
     ]
-  }
+  },
+  {
+    tag: 'Cdtr',
+    children: [
+      { tag: 'Nm', prop: 'creditorName'}
+    ]
+  },
+  {
+    tag: 'CdtrAcct',
+    children:[
+      { tag: 'Id',
+        children:[
+          { tag: 'IBAN', prop: 'creditorIban'}
+        ]
+      }
+    ]
+  },
+
+  //CdtrAgt.FinInstnId.ClrSysMmbId.Mmbid
+  {
+    tag: 'CdtrAgt',
+    children: [
+      { tag: 'FinInstnId', children:[
+        { tag: 'ClrSysMmbId', children:[
+          { tag: 'Mmbid', prop: 'creditorAgentABI' },]
+        }]
+    }]
+  },
+  //CdtrSchmeId.Id.PrvtId.Othr.Id
+  {
+    tag: 'CdtrSchmeId',
+    children: [
+      { tag: 'Id', children:[
+        { tag: 'PrvtId', children:[
+          { tag: 'Othr', children:[
+            { tag: 'Id', prop: 'creditorSchemaId'}
+          ]},]
+        }]
+    }]
+  },
 ];
 
 export class PaymentInfo extends ElementWrapper{
@@ -67,6 +106,42 @@ export class PaymentInfo extends ElementWrapper{
 
   //ReqdColltnDt
   public requestCollectionDate: Date;
+
+
+  //Cdtr
+
+  //Cdtr.Nm
+  /**
+   * The name of the creditor
+   * @type {string}
+   */
+  public creditorName: string;
+
+  //CdtrAcct
+
+  //CdtrAcct.Id.IBAN
+  /**
+   * coordinate bancarie del creditore
+   * @type {string}
+   */
+  public creditorIban: string;
+
+  //CdtrAgt
+
+  //CdtrAgt.FinInstnId.ClrSysMmbId.Mmbid
+  /**
+   * the ABI of the creditor agent
+   * @type {[type]}
+   */
+  public creditorAgentABI: string;
+
+
+  //CdtrSchmeId
+  //CdtrSchmeId.Id.PrvtId.Othr.Id
+  public creditorSchemaId: string;
+
+
+
 
   public validate():void {
 
