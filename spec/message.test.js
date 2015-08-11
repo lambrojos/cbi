@@ -72,8 +72,7 @@ describe('Logical message class', function() {
     });
   });
 
-  xit(`se amendment indicator è true e l\'original debtor
-    agent è valorizzato come SMNDA il campo LclInstr deve essere FRST`, function(){
+  xit('se amendment indicator è true e l\'original debtor agent è valorizzato come SMNDA il campo LclInstr deve essere FRST', function(){
   });
 
 
@@ -82,12 +81,12 @@ describe('Logical message class', function() {
     var undertest = new LogicalMessage();
     var badOp = function() {
       undertest.creationDateTime = '2020-10-5';
-    }
+    };
 
     var goodOp = function() {
       undertest.creationDateTime = new Date();
       undertest.creationDateTime = '2010-1-1';
-    }
+    };
 
     expect(badOp).to.throw('Message creation date cannot be in the future');
     expect(goodOp).not.to.throw('Message creation date cannot be in the future');

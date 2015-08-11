@@ -114,8 +114,7 @@ describe('the Other class', function() {
     }
   );
 
-  it(`if the issr field is ADE then the id field must be a codice fiscale or
-      a partita IVA`,
+  it('if the issr field is ADE then the id field must be a codice fiscale or a partita IVA',
     function(){
 
       var other = new Other();
