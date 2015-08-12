@@ -8,7 +8,6 @@ declare module "libxmljs-mt" {
     export function parseXmlString(source:string):Document;
     export function parseHtmlString(source:string):HTMLDocument;
 
-
     export interface IElementWrapper {
       validate();
       appendElement(el: Element);

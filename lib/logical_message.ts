@@ -1,6 +1,6 @@
 ///<reference path="../typings/tsd.d.ts"/>
 
-import {CBIOperation} from "./cbi_operation";
+import {CBIOperation, XSDError} from "./cbi_operation";
 import {readXML} from "./xml_utils";
 import {v4 as getUUID} from 'uuid';
 import {InitiatingParty} from "./initiating_party";
@@ -8,6 +8,11 @@ import {PaymentInfo} from "./payment_info";
 import * as libxml from 'libxmljs-mt';
 import * as assert from "assert";
 import * as _ from 'lodash';
+import * as P from 'bluebird';
+import {readFile} from 'fs';
+
+const readFileAsync = P.promisify(readFile);
+const parseXMLAsync = P.promisify(libxml.Document.fromXmlAsync);
 
 type XMLDoc = libxml.Document;
 
@@ -17,7 +22,6 @@ type XMLDoc = libxml.Document;
  * @classdesc A class that manages cbi logical messages
 */
 export class LogicalMessage<T extends CBIOperation> {
-
 
   /**
    * The message id
@@ -116,7 +120,7 @@ export class LogicalMessage<T extends CBIOperation> {
     this.messageIdentification = getUUID().replace('-','');
   }
 
-  public toXMLDoc(): XMLDoc{
+  public toXMLDoc(): P<XMLDoc>{
 
     this.validate();
 
@@ -124,18 +128,41 @@ export class LogicalMessage<T extends CBIOperation> {
     xsdName = this.transactionClass.XSDName;
 
     const root = doc.node("CBISDDReqLogMsg")
-    root.attr({
-      'xmlns': `urn:CBI:xsd:${xsdName}`,
-      'xmlns:uri': `urn:CBI:xsd:${xsdName} ${xsdName}.xsd`,
-      'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance'
-    });
+
+    var ns = root.defineNamespace('urn:CBI:xsd:CBISDDReqLogMsg.00.01.00');
+    root.namespace(ns);
 
     this.addHeader(root);
 
     for(const paymentInfo of this.paymentInfos){
       paymentInfo.appendToElement(root);
     }
-    return doc;
+
+    //read and parse the xsd
+    //console.log('doom kebab')
+    return readFileAsync(this.transactionClass.XSDFilepath)
+    .then(function(buffer){
+      return parseXMLAsync(buffer, {})
+    })
+    .then(function(xsdDoc){
+
+      //HACK find a way to create al elements inside a file
+      //with m-fing root namespace
+      //reparsing does that, but at which price?
+      doc = libxml.parseXmlString(doc.toString());
+
+    //  console.log(reparsed.toString());
+
+      if(!doc.validate(xsdDoc)){
+
+        const err = new XSDError('Xsd validation failed invalid document');
+        err.validationErrors = doc.errors;
+        throw err;
+      }
+      //console.log(reparsed);
+      return doc;
+    });
+
   }
 
   /**
@@ -147,13 +174,12 @@ export class LogicalMessage<T extends CBIOperation> {
 
     const header = root.node('GrpHdr');
     header.node('MsgId', this.messageIdentification);
-    header.node('CtrlSum', this.checksum.toString());
     header.node('CreDtTm', this._creationDateTime.toISOString());
-    header.node('NbOfTxs', this._creationDateTime.toISOString());
+    header.node('NbOfTxs', this.numberOfTransactions.toString());
+    header.node('CtrlSum', this.checksum.toString());
 
     this.initiatingParty.appendToElement(header);
   }
-
 
   /**
    * Create a new instance from an XML Document instance.
@@ -188,10 +214,10 @@ export class LogicalMessage<T extends CBIOperation> {
 
           switch(hdrName){
 
-            case "MsgId": lm.messageIdentification = el.text();
+            case "CreDtTm": lm.creationDateTime = el.text();
             break;
 
-            case "CreDtTm": lm.creationDateTime = el.text();
+            case "MsgId": lm.messageIdentification = el.text();
             break;
 
             case "NbOfTxs": lm.numberOfTransactions = parseInt(el.text(), 10);

@@ -29,7 +29,7 @@ const directDebitTxDef = [
 
     set: (val, el, instance) => {
       el.attr({ Ccy: instance.currency });
-      el.text(val.amount);
+      el.text(instance.instructedAmount);
     }
   },
   {
@@ -42,7 +42,6 @@ const directDebitTxDef = [
           { tag: 'DtOfSgntr', prop: 'dateOfSignature' }
         ]
       },
-      { tag: 'Nm', prop:'creditorName' },
     ]
   },
   {
@@ -109,7 +108,7 @@ export class DirectDebitTx extends ElementWrapper {
   }
 
   public constructor(el?: libxml.Element) {
-    this.rootNodeName = 'PmtInfo';
+    this.rootNodeName = 'DrctDbtTxInf';
     this.elementDef = directDebitTxDef;
     super(el);
   }

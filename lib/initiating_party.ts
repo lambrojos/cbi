@@ -12,30 +12,18 @@ const ipDef = [
 
   {
     tag: 'Id',
-    prop: 'organizationsIDs',
-    get: (node)=>{
-
-      const organizations=[];
-      const childElements = node
-        .childNodes()
-        .filter( (node) => node.name() === 'OrgId')[0]
-        .childNodes();
-
-      for( const other of childElements){
-        if(other.name() === 'Othr')
-          return new Other(other);
-      }
-
-    },
-
-    set: (prop, el)=>{
-      const orgRoot:libxml.Element = el.node('OrgId');
-      for (const orgId of prop){
-        orgId.appendToElement(orgRoot);
-      }
-    }
+    children: [{
+      tag: 'OrgId',
+      //prop: 'organizationsIDs',
+      children: [{
+        tag: 'Othr',
+        prop: 'organizationsIDs',
+        get: (othr) => { return new Other(othr); },
+      }]
+    }]
   }
 ];
+
 
 
 //export class InitiatingParty implements libxml.IElementWrapper{
@@ -47,7 +35,7 @@ export class InitiatingParty extends ElementWrapper{
   public validate(){
     assert(this.organizationsIDs.length > 0, "Need at least one organization");
     console.log(this.organizationsIDs);
-    
+
     assert(this.organizationsIDs[0].issuer === 'CBI',
       `First organization id must contain a CBI issued CUC code
        value: ${this.organizationsIDs[0].issuer}

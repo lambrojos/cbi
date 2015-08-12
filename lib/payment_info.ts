@@ -9,26 +9,27 @@ type XMLDoc = libxml.Document;
 const paymentInfoDef = [
   {tag: 'PmtInfId', prop: 'paymentInfoId'},
   {tag: 'PmtMtd', prop: 'paymentMethod'},
+  {tag: 'BtchBookg', prop: 'batchBooking'},
+  {
+    tag: 'PmtTpInf',
+    children: [
+      { tag: 'SvcLvl', children:[
+        { tag: 'Cd', prop: 'serviceLevel' }
+      ]},
+      { tag: 'LclInstrm', children:[
+        { tag: 'Cd', prop: 'localInstrument' }
+      ]},
+      { tag:'SeqTp', prop: 'sequenceType' },
+    /*  { tag: 'CtgyPurp', children:[
+        { tag: 'Cd', prop: 'categoryPurpose' }
+      ]}*/
+    ]
+  },
   {
     tag: 'ReqdColltnDt',
     prop: 'requestCollectionDate',
     get: val =>  new Date(val.text()),
-    set: (date, el) =>  el.text(date.toISOString())
-  },
-  {
-    tag: 'PmtTpInf',
-    children: [
-      { tag:'SeqTp', prop: 'sequenceType' },
-      { tag: 'LclInstrm', children:[
-        { tag: 'Cd', prop: 'localInstrument' }
-      ]},
-      { tag: 'SvcLvl', children:[
-        { tag: 'Cd', prop: 'serviceLevel' }
-      ]},
-      { tag: 'CtgyPurp', children:[
-        { tag: 'Cd', prop: 'categoryPurpose' }
-      ]}
-    ]
+    set: (date, el) =>  el.text(date.toISOString().substring(0, 10))
   },
   {
     tag: 'Cdtr',
@@ -53,7 +54,7 @@ const paymentInfoDef = [
     children: [
       { tag: 'FinInstnId', children:[
         { tag: 'ClrSysMmbId', children:[
-          { tag: 'Mmbid', prop: 'creditorAgentABI' },]
+          { tag: 'MmbId', prop: 'creditorAgentABI' },]
         }]
     }]
   },
@@ -72,14 +73,7 @@ const paymentInfoDef = [
   {
     tag: 'DrctDbtTxInf',
     prop: 'directDebt',
-    get: (node) => {
-
-      // console.log(new DirectDebitTx(node));
-
-
-      // this.directDebitTx.push(new DirectDebitTx(node))
-      return new DirectDebitTx(node);
-    }
+    get: (node) => { return new DirectDebitTx(node); }
   }
 ];
 
@@ -175,7 +169,7 @@ export class PaymentInfo extends ElementWrapper{
   }
 
   public constructor(el?: libxml.Element){
-    this.rootNodeName = 'PmtInfo';
+    this.rootNodeName = 'PmtInf';
     this.elementDef = paymentInfoDef;
     this.directDebt = [];
     super(el);
