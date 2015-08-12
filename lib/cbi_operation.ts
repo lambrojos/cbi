@@ -16,9 +16,10 @@ export interface ElementDef{
 
   tag: string;
   prop?: string;
+  attr?: string;
 
-  set?: (el:libxml.Element, prop:any)=>void;
-  get?: (el:libxml.Element)=>any;
+  set?: (el:libxml.Element, prop: any, instance?: ElementWrapper)=>void;:qlibxml
+  get?: (el:libxml.Element, instance?: ElementWrapper)=>any;
 
   children?: Array<ElementDef>
 }

@@ -4,7 +4,9 @@ var LogicalMessage = require('../lib/logical_message').LogicalMessage;
 var SDDReq = require('../lib/sdd_req').SDDRequest;
 var path = require('path');
 var xmlPath = path.resolve(__dirname, './testdata/SDDRequest.xml');
+var PaymentInfo = require('../lib/payment_info').PaymentInfo;
 var _ = require('lodash');
+var fs = require('fs');
 
 describe('Logical message class', function() {
 
@@ -26,8 +28,7 @@ describe('Logical message class', function() {
       expect(msg).not.to.be.null;
 
       //TODO trova il modo di testare che sia uguale all'originale
-      console.log(msg.toXMLDoc().toString());
-
+      //
       done();
     });
   });
@@ -39,8 +40,18 @@ describe('Logical message class', function() {
 
       msg.validate();
 
+      //clone ritorna un oggetto, non un istanza di PaymentInfo  var ip = new PaymentInfo();
+      var ip = new PaymentInfo();
+      ip.paymentInfoId = '1';
+      ip.paymentMethod = 'DD';
+      ip.batchBooking = true;
+      ip.serviceLevel = 'SEPA';
+      ip.localInstrument = 'CORE';
+      ip.requestCollectionDate = new Date();
+      ip.categoryPurpose = 'what';
+      ip.sequenceType = 'FRST';
 
-      msg.paymentInfos[2] = _.clone(msg.paymentInfos[0]);
+      msg.paymentInfos.push(ip);
 
       var bad = function() {
         msg.validate();

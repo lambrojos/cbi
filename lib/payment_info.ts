@@ -2,7 +2,7 @@
 import * as libxml from 'libxmljs-mt';
 import * as assert from 'assert';
 import {ElementWrapper } from './cbi_operation';
-import {DirectDebitTx} from "./directDebitTx";
+import {DirectDebitTx} from "./direct_debit_tx";
 
 type XMLDoc = libxml.Document;
 
@@ -75,7 +75,7 @@ const paymentInfoDef = [
     get: (node) => {
 
       // console.log(new DirectDebitTx(node));
-      
+
 
       // this.directDebitTx.push(new DirectDebitTx(node))
       return new DirectDebitTx(node);
@@ -154,7 +154,7 @@ export class PaymentInfo extends ElementWrapper{
   public creditorSchemaId: string;
 
 
-  public DirectDebt: Array<DirectDebitTx>;
+  public directDebt: Array<DirectDebitTx>;
 
 
   public validate():void {
@@ -168,6 +168,10 @@ export class PaymentInfo extends ElementWrapper{
       PaymentInfo.sequenceTypes.indexOf(this.sequenceType) >= 0 ,
       'Unknown sequence type '+this.sequenceType+' errcode: NARR'
     );
+
+    for (let dd of this.directDebt) {
+      dd.validate();
+    }
   }
 
   public constructor(el?: libxml.Element){

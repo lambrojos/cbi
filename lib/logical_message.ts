@@ -74,31 +74,37 @@ export class LogicalMessage<T extends CBIOperation> {
       this._creationDateTime = new Date();
     }
 
-    const array = _.pluck(this.paymentInfos, 'paymentInfoId');
-    for( const paymentInfo of this.paymentInfos){
-        if (_.uniq(array).length !== array.length) {
-        throw new Error('Non unique payment info id. errocode:NARR');
-      }
-    }
+    //temp arrays used for uniqueness test
+    const paymentInfoIds = [];
+    const e2eIds = [];
 
     let lastLocalInstrument = null;
+
     for( const paymentInfo of this.paymentInfos){
+
+      paymentInfo.validate();
+
       if(lastLocalInstrument && paymentInfo.localInstrument !== lastLocalInstrument){
         throw new Error('Local instrument must be the same for all payment info. errocode:NARR');
       }
       lastLocalInstrument = paymentInfo.localInstrument;
-    }
 
-    // validate uniqueness of directDebitTx.e2eId 
-
-    let e2eIds = [];
-    for (const paymentInfo of this.paymentInfos) {
-      for( let id of _.pluck(paymentInfo.directDebt, 'e2eId')){
-        e2eIds.push(id);
+      if( paymentInfoIds.indexOf(paymentInfo.paymentInfoId) > -1){
+        throw new Error('Non unique payment info id. errocode:NARR');
       }
-    }
-    if (_.uniq(e2eIds).length !== e2eIds.length) {
-        throw new Error('Non unique directDebtTx e2eId. errocode:NARR');
+      else{
+        paymentInfoIds.push(paymentInfo.paymentInfoId);
+      }
+
+      for (const directDebt of paymentInfo.directDebt) {
+        if(e2eIds.indexOf(directDebt.e2eId) > -1){
+          throw new Error('Non unique directDebtTx e2eId. errocode:NARR');
+        }
+        else{
+          e2eIds.push(directDebt.e2eId);
+        }
+      }
+
     }
   }
 
@@ -203,7 +209,7 @@ export class LogicalMessage<T extends CBIOperation> {
       else if(name === 'PmtInf'){
         lm.paymentInfos.push(new PaymentInfo(rootChild));
       }
-      // TODO add directDebitTx
+
     }
 
     assertArray([

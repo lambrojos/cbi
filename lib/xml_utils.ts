@@ -48,8 +48,6 @@ export function readNode(el:libxml.Element, defs:Array<cbi.ElementDef>, elementW
 
   for(const childNode of el.childNodes()){
 
-
-
     const def = tags[ childNode.name()];
     if ( def === undefined ) continue;
 
@@ -58,11 +56,11 @@ export function readNode(el:libxml.Element, defs:Array<cbi.ElementDef>, elementW
       continue;
     }
     // console.log(def.prop, Array.isArray(elementWrapper[def.prop]));
-    
+
     var getValue;
     // se ho definito una funzione get la eseguo per ottenere il valore
     if (typeof def.get === 'function'){
-      getValue = def.get(childNode);
+      getValue = def.get(childNode, elementWrapper);
     }
     // altrimenti leggo il contenuto
     else{

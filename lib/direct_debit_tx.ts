@@ -9,28 +9,30 @@ type XMLDoc = libxml.Document;
 // questa classe sta dentro PMT Info
 
 const directDebitTxDef = [
-  { 
-    tag: 'PmtId', 
+  {
+    tag: 'PmtId',
     children:[
       {tag: 'InstrId', prop: 'instructionId'},
       {tag: 'EndToEndId', prop: 'e2eId'} //validate deve essere univoco ma va validato nel logical message
     ]
   },
-  { 
-    tag: 'InstdAmt', 
+  {
+    tag: 'InstdAmt',
     prop: 'instructedAmount',
-    get: el => {
-      return {
-        currency: el.attr('Ccy'),
-        amount: el.text()
-      }
+
+    get: (el, instance) => {
+      //IDEA: implementare un campo "attributes" che vada negli attributi del nodo
+      //e funzioni più o meno come children?
+      instance.currency = el.attr('Ccy').value();
+      return el.text()
     },
-    set: (val, el) => {
-        el.attr({ Ccy: val.currency });
-        el.text(val.amount);
+
+    set: (val, el, instance) => {
+      el.attr({ Ccy: instance.currency });
+      el.text(val.amount);
     }
   },
-  { 
+  {
     tag: 'DrctDbtTx',
     children: [
       {
@@ -49,7 +51,7 @@ const directDebitTxDef = [
       { tag: 'Nm', prop: 'debitorName' }
     ]
   },
-  { 
+  {
     tag: 'DbtrAcct',
     children: [
       {
@@ -82,7 +84,8 @@ export class DirectDebitTx extends ElementWrapper {
   // deve essere fra 0.01 e 999999999.99
   // con massimo due decimali
   // validare che l'attributo Ccy = EUR
-  public instructedAmount: Object; 
+  public instructedAmount: number;
+  public currency: string;
 
   public mandateIdentification: string;
   public dateOfSignature: Date;
@@ -96,10 +99,10 @@ export class DirectDebitTx extends ElementWrapper {
   public validate():void {
 
     // validazione structured amount
-    assert(this.instructedAmount.amount >= 0.01, `Value ${this.instructedAmount.amount} should be greater than 0.01 (AM09)`);
-    assert(this.instructedAmount.amount <= 999999999.99, `Value ${this.instructedAmount.amount} should be smaller than 999999999.99 (AM09)`);
-    assert(this.decimalPlaces(this.instructedAmount.amount) <= 2, `Value ${this.instructedAmount.amount} should have 2 decimal at max (AM09)`)
-    assert(this.instructedAmount.currency === 'EUR', `Value ${this.instructedAmount.currency} should be EUR (AM03)`);
+    assert(this.instructedAmount >= 0.01, `Value ${this.instructedAmount} should be greater than 0.01 (AM09)`);
+    assert(this.instructedAmount <= 999999999.99, `Value ${this.instructedAmount} should be smaller than 999999999.99 (AM09)`);
+    assert(this.decimalPlaces(this.instructedAmount) <= 2, `Value ${this.instructedAmount} should have 2 decimal at max (AM09)`)
+    assert(this.currency === 'EUR', `Value ${this.currency} should be EUR (AM03)`);
 
     // validazione IBAN
     assert(IBAN.isValid(this.IBAN), `Value ${this.IBAN} should be a valid IBAN`);

@@ -16,6 +16,7 @@
     "files": [
         "./index.ts",
         "./lib/cbi_operation.ts",
+        "./lib/direct_debit_tx.ts",
         "./lib/ielementwrapper.ts",
         "./lib/initiating_party.ts",
         "./lib/logical_message.ts",

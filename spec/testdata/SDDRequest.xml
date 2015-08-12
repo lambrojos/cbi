@@ -99,7 +99,7 @@
 			</Dbtr>
 			<DbtrAcct>
 				<Id>
-					<IBAN>IT48Y0123412345000069016772</IBAN>
+					<IBAN>IT60X0542811101000000123456</IBAN>
 				</Id>
 			</DbtrAcct>
 			<Purp>
@@ -139,7 +139,7 @@
 			</Dbtr>
 			<DbtrAcct>
 				<Id>
-					<IBAN>IT55Y0987603200000069011111</IBAN>
+					<IBAN>IT60X0542811101000000123456</IBAN>
 				</Id>
 			</DbtrAcct>
 			<Purp>
@@ -179,7 +179,7 @@
 			</Dbtr>
 			<DbtrAcct>
 				<Id>
-					<IBAN>IT44Y0123403200000069022222</IBAN>
+					<IBAN>IT60X0542811101000000123456</IBAN>
 				</Id>
 			</DbtrAcct>
 			<Purp>
@@ -221,7 +221,7 @@
 		</Cdtr>
 		<CdtrAcct>
 			<Id>
-				<IBAN>IT89S9999999999999999999999</IBAN>
+				<IBAN>IT60X0542811101000000123456</IBAN>
 			</Id>
 		</CdtrAcct>
 		<CdtrAgt>
@@ -264,7 +264,7 @@
 			</Dbtr>
 			<DbtrAcct>
 				<Id>
-					<IBAN>IT55Y0765403210000069022222</IBAN>
+					<IBAN>IT60X0542811101000000123456</IBAN>
 				</Id>
 			</DbtrAcct>
 			<Purp>
@@ -297,7 +297,7 @@
 			</Dbtr>
 			<DbtrAcct>
 				<Id>
-					<IBAN>IT88Y0765403333000012345678</IBAN>
+					<IBAN>IT60X0542811101000000123456</IBAN>
 				</Id>
 			</DbtrAcct>
 			<Purp>
