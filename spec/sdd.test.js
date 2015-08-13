@@ -1,32 +1,18 @@
 'use strict';
 var expect = require('chai').expect;
-var LogicalMessage = require('../lib/logical_message').LogicalMessage;
-var SDDReq = require('../lib/sdd_req').SDDRequest;
+var SDDRequest = require('../lib/sdd_request').SDDRequest;
 var path = require('path');
 var xmlPath = path.resolve(__dirname, './testdata/SDDRequest.xml');
 var PaymentInfo = require('../lib/payment_info').PaymentInfo;
 //var _ = require('lodash');
-var fs = require('fs');
+//var fs = require('fs');
 
 describe('Logical message class', function() {
 
-  xit('parses and validates and xml document', function(done) {
-
-    LogicalMessage.fromXMLFile(xmlPath, SDDReq)
-    .then(function(logicalMsg){
-
-      expect(logicalMsg.messageIdentification).to.equal('20133281307140001');
-      done();
-    });
-  });
-
   it('creates valid xml documents', function(done) {
 
-    LogicalMessage.fromXMLFile(xmlPath, SDDReq)
+    SDDRequest.fromXMLFile(xmlPath)
     .then(function(msg){
-
-      expect(msg).not.to.be.null;
-      //console.log(msg.toXMLDoc().toString());
 
       return msg.toXMLDoc();
     })
@@ -35,13 +21,13 @@ describe('Logical message class', function() {
       done();
     }).
     catch(function (err) {
-      console.log(err.validationErrors);
+      console.log(err);
     });
   });
 
-  xit('allows only unique payment info ids inside the same document', function(done){
+  it('allows only unique payment info ids inside the same document', function(done){
 
-    LogicalMessage.fromXMLFile(xmlPath, SDDReq)
+    SDDRequest.fromXMLFile(xmlPath)
     .then(function(msg){
 
       msg.validate();
@@ -69,58 +55,36 @@ describe('Logical message class', function() {
     });
   });
 
-  xit('local instrument code must be coherent with service name', function() {
+  it('local instrument code must be coherent with service name', function() {
   });
 
-  xit('local instrument code must be the same for the payment infos', function(done){
+  it('local instrument code must be the same for the payment infos', function(done){
 
-    LogicalMessage.fromXMLFile(xmlPath, SDDReq)
+    SDDRequest.fromXMLFile(xmlPath)
     .then(function(msg){
 
       msg.validate();
-
       msg.paymentInfos[0].localInstrument = 'B2B';
-
       var bad = function() {
         msg.validate();
       };
 
       expect(bad).to.throw('Local instrument must be the same for all payment info');
-
       done();
     });
   });
 
   xit('se amendment indicator è true e l\'original debtor agent è valorizzato come SMNDA il campo LclInstr deve essere FRST', function(){
   });
-
-
-  xit('doesn\'t accept a future creation date', function() {
-
-    var undertest = new LogicalMessage();
-    var badOp = function() {
-      undertest.creationDateTime = '2020-10-5';
-    };
-
-    var goodOp = function() {
-      undertest.creationDateTime = new Date();
-      undertest.creationDateTime = '2010-1-1';
-    };
-
-    expect(badOp).to.throw('Message creation date cannot be in the future');
-    expect(goodOp).not.to.throw('Message creation date cannot be in the future');
-
-  });
 });
 
-xdescribe('Logical Message validation on DirectDebitTx', function() {
+describe('Logical Message validation on DirectDebitTx', function() {
   it('should validate e2eId uniqueness', function(done) {
-    LogicalMessage.fromXMLFile(xmlPath, SDDReq)
+    SDDRequest.fromXMLFile(xmlPath)
     .then(function(msg){
 
       // overring id to have a duplicate in tes
       msg.paymentInfos[0].directDebt[0].e2eId = '0003';
-
       var bad = function(){
         msg.validate();
       };
@@ -130,4 +94,36 @@ xdescribe('Logical Message validation on DirectDebitTx', function() {
       done();
     });
   });
+
+  it('should validate transaction number', function(done) {
+    SDDRequest.fromXMLFile(xmlPath)
+    .then(function(msg){
+
+      // overring id to have a duplicate in tes
+      msg.numberOfTransactions = 10003;
+      var bad = function(){
+        msg.validate();
+      };
+
+      expect(bad).to.throw('Wrong number of transactions');
+
+      done();
+    });
+  });
+
+  it('should validate transaction checksum', function(done) {
+    SDDRequest.fromXMLFile(xmlPath)
+    .then(function(msg){
+
+      // overring id to have a duplicate in tes
+      msg.checksum = 10003;
+      var bad = function(){
+        msg.validate();
+      };
+
+      expect(bad).to.throw('Wrong transaction checksum');
+      done();
+    });
+  });
+
 });

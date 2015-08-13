@@ -41,6 +41,7 @@ export function readNode(el:libxml.Element, defs:Array<cbi.ElementDef>, elementW
   for(const childNode of el.childNodes()){
 
     const def = tags[ childNode.name()];
+
     if ( def === undefined ) continue;
 
     if(def.children){
@@ -84,6 +85,7 @@ function setValue(def:cbi.ElementDef, el:libxml.Element, propElement:any, inst){
     def.set(propElement, el.node(def.tag), inst);
   }
   else{
+
     if(propElement instanceof cbi.ElementWrapper){
       propElement.appendToElement(el);
     }
