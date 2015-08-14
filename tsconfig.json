@@ -21,6 +21,7 @@
         "./lib/initiating_party.ts",
         "./lib/payment_info.ts",
         "./lib/postal_address.ts",
+        "./lib/sct_payment_info.ts",
         "./lib/sct_request.ts",
         "./lib/sdd_request.ts",
         "./lib/validators.ts",

@@ -3,10 +3,11 @@ import * as libxml from 'libxmljs-mt';
 import * as assert from 'assert';
 import {ElementWrapper } from './cbi_operation';
 import {DirectDebitTx} from "./direct_debit_tx";
+import {PaymentInfo} from "./payment_info";
+
 
 type XMLDoc = libxml.Document;
 
-//Questo rimane specifico per
 const paymentInfoDef = [
   {tag: 'PmtInfId', prop: 'paymentInfoId'},
   {tag: 'PmtMtd', prop: 'paymentMethod'},
@@ -78,7 +79,7 @@ const paymentInfoDef = [
   }
 ];
 
-export class PaymentInfo extends ElementWrapper{
+export class SCTPaymentInfo extends PaymentInfo {
 
   public static localInstrumentCodes = [
     'CORE',
@@ -96,6 +97,7 @@ export class PaymentInfo extends ElementWrapper{
 //PmtInflocal root
   public paymentInfoId: string;
   public paymentMethod: string;
+
   public batchBooking: string;
   public paymentTypeInfo: string;
 
