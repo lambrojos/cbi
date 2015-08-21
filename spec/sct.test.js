@@ -1,5 +1,4 @@
 'use strict';
-var expect = require('chai').expect;
 var SCTRequest = require('../lib/sct_request').SCTRequest;
 var path = require('path');
 var xmlPath = path.resolve(__dirname, './testdata/SCTRequest.xml');
@@ -7,7 +6,7 @@ var xmlPath = path.resolve(__dirname, './testdata/SCTRequest.xml');
 //var _ = require('lodash');
 //var fs = require('fs');
 
-describe('Logical message class', function() {
+describe('Logical sct request message class', function() {
 
   it('creates valid xml documents', function(done) {
 
@@ -15,12 +14,12 @@ describe('Logical message class', function() {
     .then(function(msg){
       return msg.toXMLDoc();
     })
-    /*.then(function(document){
+    .then(function(document){
       console.log(document.toString());
       done();
-    }).*/
+    })
     .catch(function (err) {
-      console.log(err);
+      console.log(err.stack);
     });
   });
 

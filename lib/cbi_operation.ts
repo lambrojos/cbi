@@ -54,11 +54,19 @@ export class ElementWrapper implements IElementWrapper {
 
 export class LogicalMessage extends ElementWrapper {
 
-  public messageIdentification: string;
   public XSDFilepath: string;
   public namespace: string;
   public rootElementName: string ;
   public XSDName: string;
+
+  /**
+   * The messages' creation date
+   * @type {Date}
+   */
+  public creationDateTime: Date;
+
+
+  public messageIdentification: string;
 
   /**
    * Generates an id for this message. It's an UUID v4
@@ -77,9 +85,16 @@ export class LogicalMessage extends ElementWrapper {
     super(doc.root());
   }
 
+  public validate(){
+    if(!this.messageIdentification){
+      this.generateMessageIdentification();
+    }
+  }
+
   public toXMLDoc(): P<libxml.Document>{
 
     this.validate();
+
 
     let doc = new libxml.Document(),
     xsdName = this.XSDName;
@@ -88,6 +103,7 @@ export class LogicalMessage extends ElementWrapper {
     root.namespace(ns);
 
     this.appendToElement(root);
+
 
     return readFileAsync(this.XSDFilepath)
     .then(function(buffer){
@@ -98,16 +114,46 @@ export class LogicalMessage extends ElementWrapper {
       //HACK find a way to create al elements inside a file
       //with the f-ing root namespace
       //reparsing does that, but at which price?
+
+
+      console.log(doc.toString());
       var prova = libxml.parseXmlString(doc.toString());
 
-      console.log(prova.toString());
-      
+
+
       if(!prova.validate(xsdDoc)){
         const err = new XSDError('Xsd validation failed invalid document');
         err.validationErrors = prova.validationErrors;
+        console.log(err.validationErrors);
         throw err;
       }
       return prova;
     });
+  }
+}
+
+export class RequestMessage extends LogicalMessage {
+
+  public checksum: number;
+  public numberOfTransactions: number;
+
+  protected validateChecksums(numberOfTransactions: number, checksum: number){
+
+    if(this.numberOfTransactions === undefined){
+      this.numberOfTransactions = numberOfTransactions;
+    }
+    else if(this.numberOfTransactions !== numberOfTransactions){
+      throw new Error(`Wrong number of transactions ${this.numberOfTransactions}
+          should be ${numberOfTransactions}`)
+    }
+
+    if(this.checksum === undefined){
+      this.checksum = checksum;
+    }
+    else if(this.checksum !== checksum){
+      throw new Error(`Wrong transaction checksum ${this.checksum}
+          should be ${checksum}`)
+    }
+
   }
 }
