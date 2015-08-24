@@ -5,6 +5,33 @@ import {readFile} from 'fs';
 import * as _ from 'lodash';
 import * as cbi from './cbi_operation';
 
+export interface MappedType {
+  set?: (prop: any, el:libxml.Element, instance?: cbi.ElementWrapper)=>void;
+  get?: (el:libxml.Element, instance?: cbi.ElementWrapper)=>any;
+};
+
+const types: { [name : string] : MappedType } = {
+
+  'Date': {
+    get: el => new Date(el.text()),
+    set: (prop, element) => {
+      return element.text(prop.toISOString().substring(0, 10));
+    }
+  },
+
+  'DateTime': {
+    get: el => new Date(el.text()),
+    set: (prop, element) => {
+      return element.text(prop.toISOString());
+    }
+  },
+
+  'Number': {
+    get: el => parseInt(el.text(), 10),
+    set: (prop, el) => el.text(prop.toString())
+  }
+}
+
 const readFileAsync = P.promisify(readFile);
 const parseXMLAsync = P.promisify(libxml.Document.fromXmlAsync);
 
@@ -50,8 +77,12 @@ export function readNode(el:libxml.Element, defs:Array<cbi.ElementDef>, elementW
     }
 
     var getValue;
+
+    if (def.type && types[def.type] !== undefined){
+      getValue = types[def.type].get(childNode, elementWrapper);
+    }
     // se ho definito una funzione get la eseguo per ottenere il valore
-    if (typeof def.get === 'function'){
+    else if (typeof def.get === 'function'){
       getValue = def.get(childNode, elementWrapper);
     }
     // altrimenti leggo il contenuto
@@ -80,17 +111,36 @@ function setValue(def:cbi.ElementDef, el:libxml.Element, propElement:any, inst){
 
     Sta di fatto che non devo creare un elemento perchè ci penserà la sua chiamata ad appendToElement()
    */
-  if(typeof def.set === 'function' ){
 
+
+  //empty property, insert blank
+  if(typeof propElement === 'string'){
+    el.node(def.tag, propElement);
+  }
+
+  else if(propElement === null){
+    el.node(def.tag, '');
+  }
+  //there is a defined type
+  else if (def.type && types[def.type] !== undefined){
+    types[def.type].set(propElement, el.node(def.tag), inst);
+  }
+
+  //there is a custom setter
+  else if(typeof def.set === 'function' ){
     def.set(propElement, el.node(def.tag), inst);
   }
-  else{
 
-    if(propElement instanceof cbi.ElementWrapper){
-      propElement.appendToElement(el);
-    }
-    else el.node(def.tag, propElement);
+  else if( def.wrapper && def.wrapper.prototype instanceof cbi.ElementWrapper){
+    propElement.appendToElement(el);
   }
+  //it's an element wrapper
+  //runtime type inference is deprecated, better read from def
+  //so it can be used also for getting
+  else if( propElement instanceof cbi.ElementWrapper){
+    propElement.appendToElement(el);
+  }
+
 }
 
 
@@ -98,14 +148,23 @@ export function writeNode(el:libxml.Element, defs: Array<cbi.ElementDef>, elemen
 
   for(const def of defs){
 
+    //cosa succede se nessuno dei maledetti children ha qualcosa da scrivere?
+    //un casino
+
     if(def.children){
-      writeNode(el.node(def.tag), def.children,elementWrapper);
-      continue;
+
+      const parentNode = el.node(def.tag);
+
+      writeNode(parentNode, def.children, elementWrapper);
+
+      if(parentNode.childNodes().length === 0){
+        parentNode.remove();
+      }
     }
 
     const property = elementWrapper[def.prop];
 
-    if( Array.isArray(property) ){
+    if( Array.isArray(property) || def.isArray ){
       for( const propElement of property){
         setValue(def, el, propElement, elementWrapper);
       }

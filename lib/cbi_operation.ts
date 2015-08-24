@@ -23,10 +23,17 @@ export interface ElementDef{
 
   tag: string;
   prop?: string;
+  children?: Array<ElementDef>
 
+  //TODO remove those once possible
   set?: (el:libxml.Element, prop: any, instance?: ElementWrapper)=>void;
   get?: (el:libxml.Element, instance?: ElementWrapper)=>any;
-  children?: Array<ElementDef>
+
+  //TODO merge those two suckers
+  type?: string,
+  wrapper?: typeof ElementWrapper,
+
+  isArray?: boolean,
 }
 
 export class ElementWrapper implements IElementWrapper {
@@ -35,6 +42,7 @@ export class ElementWrapper implements IElementWrapper {
   protected elementDef: Array<ElementDef>;
 
   public validate(){
+
     throw new Error('validation not implemented');
   }
 
@@ -50,15 +58,24 @@ export class ElementWrapper implements IElementWrapper {
   }
 }
 
-
-
 export class LogicalMessage extends ElementWrapper {
 
-  public messageIdentification: string;
   public XSDFilepath: string;
   public namespace: string;
   public rootElementName: string ;
   public XSDName: string;
+
+  /**
+   * The messages' creation date
+   * @type {Date}
+   */
+  public creationDateTime: Date;
+
+  /**
+  * The message identification string.
+  * @type {String}. If not provided it defaults to a dashless uuid v4
+  */
+  public messageIdentification: string;
 
   /**
    * Generates an id for this message. It's an UUID v4
@@ -74,12 +91,22 @@ export class LogicalMessage extends ElementWrapper {
 
   public constructor(doc?: libxml.Document){
     this.XSDFilepath = resolve(__dirname, `./xsd/${this.XSDName}.xsd`);
-    super(doc.root());
+    if(doc !== undefined) super(doc.root());
+  }
+
+  public validate(){
+
+
+
+    if(!this.messageIdentification){
+      this.generateMessageIdentification();
+    }
   }
 
   public toXMLDoc(): P<libxml.Document>{
 
     this.validate();
+
 
     let doc = new libxml.Document(),
     xsdName = this.XSDName;
@@ -88,6 +115,7 @@ export class LogicalMessage extends ElementWrapper {
     root.namespace(ns);
 
     this.appendToElement(root);
+
 
     return readFileAsync(this.XSDFilepath)
     .then(function(buffer){
@@ -98,10 +126,12 @@ export class LogicalMessage extends ElementWrapper {
       //HACK find a way to create al elements inside a file
       //with the f-ing root namespace
       //reparsing does that, but at which price?
-      var prova = libxml.parseXmlString(doc.toString());
 
+
+      var prova = libxml.parseXmlString(doc.toString());
       console.log(prova.toString());
-      
+
+
       if(!prova.validate(xsdDoc)){
         const err = new XSDError('Xsd validation failed invalid document');
         err.validationErrors = prova.validationErrors;
@@ -109,5 +139,31 @@ export class LogicalMessage extends ElementWrapper {
       }
       return prova;
     });
+  }
+}
+
+export class RequestMessage extends LogicalMessage {
+
+  public checksum: number;
+  public numberOfTransactions: number;
+
+  protected validateChecksums(numberOfTransactions: number, checksum: number){
+
+    if(this.numberOfTransactions === undefined){
+      this.numberOfTransactions = numberOfTransactions;
+    }
+    else if(this.numberOfTransactions !== numberOfTransactions){
+      throw new Error(`Wrong number of transactions ${this.numberOfTransactions}
+          should be ${numberOfTransactions}`)
+    }
+
+    if(this.checksum === undefined){
+      this.checksum = checksum;
+    }
+    else if(this.checksum !== checksum){
+      throw new Error(`Wrong transaction checksum ${this.checksum}
+          should be ${checksum}`)
+    }
+
   }
 }

@@ -55,7 +55,10 @@ describe('Logical message class', function() {
     });
   });
 
-  it('local instrument code must be coherent with service name', function() {
+  xit('local instrument code must be coherent with service name', function() {
+  });
+
+  xit('should create number of transactions and checksum if not specified', function() {
   });
 
   it('local instrument code must be the same for the payment infos', function(done){

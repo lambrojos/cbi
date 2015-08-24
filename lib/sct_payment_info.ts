@@ -2,66 +2,64 @@
 import * as libxml from 'libxmljs-mt';
 import * as assert from 'assert';
 import {ElementWrapper } from './cbi_operation';
-import {DirectDebitTx} from "./direct_debit_tx";
-import {PaymentInfo} from "./payment_info";
-
+import {CreditTransferTx} from "./sct_tx";
 
 type XMLDoc = libxml.Document;
 
 const paymentInfoDef = [
+  //ok
   {tag: 'PmtInfId', prop: 'paymentInfoId'},
+
+  //ok
   {tag: 'PmtMtd', prop: 'paymentMethod'},
+
+  //ok
   {tag: 'BtchBookg', prop: 'batchBooking'},
   {
     tag: 'PmtTpInf',
     children: [
+
+      //ok
       { tag: 'SvcLvl', children:[
         { tag: 'Cd', prop: 'serviceLevel' }
       ]},
-      { tag: 'LclInstrm', children:[
-        { tag: 'Cd', prop: 'localInstrument' }
-      ]},
-      { tag:'SeqTp', prop: 'sequenceType' },
-    /*  { tag: 'CtgyPurp', children:[
-        { tag: 'Cd', prop: 'categoryPurpose' }
-      ]}*/
     ]
   },
+      //ok
   {
-    tag: 'ReqdColltnDt',
-    prop: 'requestCollectionDate',
+    tag:'ReqdExctnDt',
+    prop: 'requestExecutionDate',
     get: val =>  new Date(val.text()),
     set: (date, el) =>  el.text(date.toISOString().substring(0, 10))
   },
   {
-    tag: 'Cdtr',
+    tag: 'Dbtr',
     children: [
-      { tag: 'Nm', prop: 'creditorName'}
+      { tag: 'Nm', prop: 'debtorName'}
     ]
   },
   {
-    tag: 'CdtrAcct',
+    tag: 'DbtrAcct',
     children:[
       { tag: 'Id',
         children:[
-          { tag: 'IBAN', prop: 'creditorIban'}
+          { tag: 'IBAN', prop: 'debtorIban'}
         ]
       }
     ]
   },
 
-  //CdtrAgt.FinInstnId.ClrSysMmbId.Mmbid
   {
-    tag: 'CdtrAgt',
+    tag: 'DbtrAgt',
     children: [
       { tag: 'FinInstnId', children:[
         { tag: 'ClrSysMmbId', children:[
-          { tag: 'MmbId', prop: 'creditorAgentABI' },]
+          { tag: 'MmbId', prop: 'debtorAgentABI' },]
         }]
     }]
   },
-  //CdtrSchmeId.Id.PrvtId.Othr.Id
-  {
+
+/*  {
     tag: 'CdtrSchmeId',
     children: [
       { tag: 'Id', children:[
@@ -72,15 +70,16 @@ const paymentInfoDef = [
         }]
     }]
   },
+*/
   {
-    tag: 'DrctDbtTxInf',
-    prop: 'directDebt',
-    get: (node) => { return new DirectDebitTx(node); }
+    tag: 'CdtTrfTxInf',
+    prop: 'creditTransfers',
+    get: (node) => { return new CreditTransferTx(node); }
   }
 ];
 
-export class SCTPaymentInfo extends PaymentInfo {
-
+export class SCTPaymentInfo extends ElementWrapper{
+/*
   public static localInstrumentCodes = [
     'CORE',
     'B2B',
@@ -93,11 +92,10 @@ export class SCTPaymentInfo extends PaymentInfo {
     'FNAL',
     'OOFF'
   ];
-
+*/
 //PmtInflocal root
   public paymentInfoId: string;
   public paymentMethod: string;
-
   public batchBooking: string;
   public paymentTypeInfo: string;
 
@@ -105,17 +103,11 @@ export class SCTPaymentInfo extends PaymentInfo {
     //SvcLvl.Cd
   public serviceLevel: string;
 
-    //LclInstrm.Cd
-  public localInstrument: string;
-
-    //SeqType
-  public sequenceType: string;
-
     //CtgyPurp.Cd
   public categoryPurpose: string;
 
   //ReqdColltnDt
-  public requestCollectionDate: Date;
+  public requestExecutionDate: Date;
 
 
   //Cdtr
@@ -125,7 +117,7 @@ export class SCTPaymentInfo extends PaymentInfo {
    * The name of the creditor
    * @type {string}
    */
-  public creditorName: string;
+  public debtorName: string;
 
   //CdtrAcct
 
@@ -134,7 +126,7 @@ export class SCTPaymentInfo extends PaymentInfo {
    * coordinate bancarie del creditore
    * @type {string}
    */
-  public creditorIban: string;
+  public debtorIban: string;
 
   //CdtrAgt
 
@@ -143,39 +135,26 @@ export class SCTPaymentInfo extends PaymentInfo {
    * the ABI of the creditor agent
    * @type {[type]}
    */
-  public creditorAgentABI: string;
+  public debtorAgentABI: string;
 
 
   //CdtrSchmeId
   //CdtrSchmeId.Id.PrvtId.Othr.Id
   public creditorSchemaId: string;
 
-
-  public directDebt: Array<DirectDebitTx>;
-
+  public creditTransfers: Array<CreditTransferTx>;
 
   public validate():void {
 
-    assert(
-      PaymentInfo.localInstrumentCodes.indexOf(this.localInstrument) >= 0,
-      'Unknown local instrument '+this.localInstrument+' errcode: NARR'
-    );
-
-    assert(
-      PaymentInfo.sequenceTypes.indexOf(this.sequenceType) >= 0 ,
-      'Unknown sequence type '+this.sequenceType+' errcode: NARR'
-    );
-
-    for (let dd of this.directDebt) {
-      dd.validate();
+    for (let ct of this.creditTransfers) {
+      ct.validate();
     }
   }
 
   public constructor(el?: libxml.Element){
     this.rootNodeName = 'PmtInf';
     this.elementDef = paymentInfoDef;
-    this.directDebt = [];
+    this.creditTransfers = [];
     super(el);
   }
-
 }

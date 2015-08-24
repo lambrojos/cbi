@@ -1,10 +1,10 @@
 ///<reference path="../typings/tsd.d.ts"/>
 
 import {resolve} from 'path';
-import {ElementWrapper, XSDError, LogicalMessage} from "./cbi_operation";
+import {ElementWrapper, XSDError, RequestMessage} from "./cbi_operation";
 import {readXML, writeNode} from "./xml_utils";
 import {InitiatingParty} from "./initiating_party";
-import {PaymentInfo} from "./payment_info";
+import {SCTPaymentInfo} from "./sct_payment_info";
 import * as libxml from 'libxmljs-mt';
 import * as assert from "assert";
 import * as _ from 'lodash';
@@ -13,23 +13,23 @@ import {readFile} from 'fs';
 
 type XMLDoc = libxml.Document;
 
-const SDDReqDef = [
+const SCTDef = [
   {
     tag: 'GrpHdr', children:[
       {tag: 'MsgId', prop: 'messageIdentification'},
       {tag: 'CreDtTm', prop: 'creationDateTime'},
       {tag: 'NbOfTxs', prop: 'numberOfTransactions',
-        get: s => parseInt(s, 10),
+        get: s => { return parseInt(s.text(), 10); },
         set: (s, el) => el.text(s.toString())
       },
       {tag: 'CtrlSum', prop: 'checksum',
-        get: s => parseInt(s,10),
+        get: s => parseInt(s.text(), 10),
         set: (s, el) => el.text(s.toString())
       },
       {tag: 'InitgPty', prop: 'InitiatingParty', get: el => new InitiatingParty(el)},
     ]
-  }
-  //{tag: 'PmtInf', prop: 'paymentInfos', get: el => new PaymentInfo(el)}
+  },
+  {tag: 'PmtInf', prop: 'paymentInfo', get: el => new SCTPaymentInfo(el)}
 ];
 
 const XSDName = 'CBIPaymentRequest.00.04.00';
@@ -40,7 +40,7 @@ const namespace = 'urn:CBI:xsd:CBIPaymentRequest.00.04.00';
  * @class CBI.LogicalMessage
  * @classdesc A class that manages cbi logical messages
 */
-export class SCTRequest extends LogicalMessage{
+export class SCTRequest extends RequestMessage{
 
 
   /**
@@ -48,24 +48,7 @@ export class SCTRequest extends LogicalMessage{
    * @type {string}
    */
   public initiatingParty: InitiatingParty;
-
-  /**
-   * The messages' creation date
-   * @type {Date}
-   */
-  public creationDateTime: Date;
-
-  /**
-   * Total number of transactions
-   * @type {number}
-   */
-  private numberOfTransactions: number;
-
-  private checksum: number;
-
-  public paymentInfos: Array<PaymentInfo>;
-
-
+  public paymentInfo: SCTPaymentInfo;
 
   /**
   * Validates this message
@@ -73,70 +56,34 @@ export class SCTRequest extends LogicalMessage{
   */
   public validate(){
 
-    if(!this.messageIdentification){
-      this.generateMessageIdentification();
-    }
+    super.validate();
 
-    //temp arrays used for uniqueness test
-    const paymentInfoIds = [];
-    const e2eIds = [];
+    let numberOfTransactions = 0, checksum = 0, e2eIds = [];
 
-    let lastLocalInstrument = null, numberOfTransactions = 0, checksum = 0;
+    this.paymentInfo.validate();
 
-    for( const paymentInfo of this.paymentInfos){
-
-      paymentInfo.validate();
-
-      if(lastLocalInstrument && paymentInfo.localInstrument !== lastLocalInstrument){
-        throw new Error('Local instrument must be the same for all payment info. errocode:NARR');
-      }
-      lastLocalInstrument = paymentInfo.localInstrument;
-
-      if( paymentInfoIds.indexOf(paymentInfo.paymentInfoId) > -1){
-
-        throw new Error('Non unique payment info id. errorcode:NARR');
+    for (const creditTransfer of this.paymentInfo.creditTransfers) {
+      if(e2eIds.indexOf(creditTransfer.e2eId) > -1){
+        throw new Error('Non unique directDebtTx e2eId. errocode:NARR');
       }
       else{
-
-        paymentInfoIds.push(paymentInfo.paymentInfoId);
+        e2eIds.push(creditTransfer.e2eId);
       }
 
-      for (const directDebt of paymentInfo.directDebt) {
-        if(e2eIds.indexOf(directDebt.e2eId) > -1){
-          throw new Error('Non unique directDebtTx e2eId. errocode:NARR');
-        }
-        else{
-          e2eIds.push(directDebt.e2eId);
-        }
-
-        numberOfTransactions++;
-        checksum += directDebt.instructedAmount;
-      }
+      numberOfTransactions++;
+      checksum += creditTransfer.instructedAmount;
+    }
+    if(!this.paymentInfo.paymentInfoId){
+      this.paymentInfo.paymentInfoId = this.messageIdentification;
     }
 
-    if(!this.numberOfTransactions){
-      this.numberOfTransactions=numberOfTransactions;
-    }
-    else if(this.numberOfTransactions !== numberOfTransactions){
-      throw new Error(`Wrong number of transactions ${this.numberOfTransactions}
-          should be ${numberOfTransactions}`)
-    }
-
-    if(!this.checksum){
-
-      this.checksum = checksum;
-    }
-    else if(this.checksum !== checksum){
-      throw new Error(`Wrong transaction checksum ${this.checksum}
-          should be ${checksum}`)
-    }
+    super.validateChecksums(numberOfTransactions, checksum);
   }
 
   public constructor(doc?: libxml.Document){
-    this.elementDef = SDDReqDef;
+    this.elementDef = SCTDef;
     this.XSDName = XSDName;
     this.rootNodeName = rootElementName;
-    this.paymentInfos = [];
     this.namespace = namespace;
     super(doc);
   }
@@ -149,8 +96,3 @@ export class SCTRequest extends LogicalMessage{
     });
   }
 }
-
-
-/*function assertArray(val):void{
-  val.map(assert);
-}*/

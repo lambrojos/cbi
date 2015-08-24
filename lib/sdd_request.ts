@@ -1,7 +1,7 @@
 ///<reference path="../typings/tsd.d.ts"/>
 
 import {resolve} from 'path';
-import {ElementWrapper, XSDError, LogicalMessage} from "./cbi_operation";
+import {ElementWrapper, XSDError, LogicalMessage, RequestMessage} from "./cbi_operation";
 import {readXML, writeNode} from "./xml_utils";
 import {InitiatingParty} from "./initiating_party";
 import {PaymentInfo} from "./payment_info";
@@ -11,7 +11,6 @@ import * as _ from 'lodash';
 import * as P from 'bluebird';
 import {readFile} from 'fs';
 
-
 type XMLDoc = libxml.Document;
 
 const SDDReqDef = [
@@ -20,13 +19,13 @@ const SDDReqDef = [
       {tag: 'MsgId', prop: 'messageIdentification'},
       {tag: 'CreDtTm', prop: 'creationDateTime'},
       {tag: 'NbOfTxs', prop: 'numberOfTransactions',
-        get: s => parseInt(s, 10),
+        get: s => { return parseInt(s.text(), 10); },
         set: (s, el) => el.text(s.toString())
       },
       {tag: 'CtrlSum', prop: 'checksum',
-        get: s => parseInt(s,10),
+        get: s => parseInt(s.text(), 10),
         set: (s, el) => el.text(s.toString())
-    },
+      },
       {tag: 'InitgPty', prop: 'InitiatingParty', get: el => new InitiatingParty(el)},
     ]
   },
@@ -37,35 +36,19 @@ const XSDName = 'CBISDDReqLogMsg.00.01.00';
 const rootElementName = "CBISDDReqLogMsg"
 
 /**
- * Class LogicalMessage
- * @class CBI.LogicalMessage
- * @classdesc A class that manages cbi logical messages
+ * Class SDDRequest
+ * @class SDDRequest
+ * @classdesc A class that manages cbi SEPA Direct Debit Requests
 */
-export class SDDRequest extends LogicalMessage{
+export class SDDRequest extends RequestMessage{
 
-
-  /**
-   * The message id
-   * @type {string}
-   */
   public initiatingParty: InitiatingParty;
 
   /**
-   * The messages' creation date
-   * @type {Date}
-   */
-  public creationDateTime: Date;
-
-  /**
-   * Total number of transactions
-   * @type {number}
-   */
-  private numberOfTransactions: number;
-
-  private checksum: number;
-
+  * Array of payment informations
+  * @type Array<PaymentInfo>
+  */
   public paymentInfos: Array<PaymentInfo>;
-
 
 
   /**
@@ -74,11 +57,8 @@ export class SDDRequest extends LogicalMessage{
   */
   public validate(){
 
-    if(!this.messageIdentification){
-      this.generateMessageIdentification();
-    }
+    super.validate();
 
-    //temp arrays used for uniqueness test
     const paymentInfoIds = [];
     const e2eIds = [];
 
@@ -115,25 +95,11 @@ export class SDDRequest extends LogicalMessage{
       }
     }
 
-    if(!this.numberOfTransactions){
-      this.numberOfTransactions=numberOfTransactions;
-    }
-    else if(this.numberOfTransactions !== numberOfTransactions){
-      throw new Error(`Wrong number of transactions ${this.numberOfTransactions}
-          should be ${numberOfTransactions}`)
-    }
-
-    if(!this.checksum){
-
-      this.checksum = checksum;
-    }
-    else if(this.checksum !== checksum){
-      throw new Error(`Wrong transaction checksum ${this.checksum}
-          should be ${checksum}`)
-    }
+    this.validateChecksums(numberOfTransactions, checksum);
   }
 
   public constructor(doc?: libxml.Document){
+
     this.elementDef = SDDReqDef;
     this.XSDName = XSDName;
     this.rootNodeName = rootElementName;
@@ -151,8 +117,3 @@ export class SDDRequest extends LogicalMessage{
     });
   }
 }
-
-
-/*function assertArray(val):void{
-  val.map(assert);
-}*/

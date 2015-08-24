@@ -46,6 +46,7 @@ declare module "libxmljs-mt" {
         name():string;
         name(newName:string):void;
         text():string;
+        text(content:string):Element;
         attr(name:string):string;
         attr(attr:Attribute);
         attr(attrObject:{[key:string]:string;}):void;

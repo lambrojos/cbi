@@ -18,3 +18,9 @@ In mancanza di specifici accordi bilaterali relativamente all'utilizzo di tale c
 
 (per paolo)
 Ci interessa gli indirizzi postali dei creditori?
+
+
+sct - 20 j - come è possibile che sia univoco se è uguale al msgid di tutto il messaggio?
+Identificativo unico assegnato dal mittente per identificare univocamente le informazioni di addebito all'interno del messaggio.
+Si raccomanda di valorizzare tale campo con il MsgId.
+Perchè c'è solo un payment info nel sct 

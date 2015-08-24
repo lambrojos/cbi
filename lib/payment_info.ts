@@ -21,9 +21,6 @@ const paymentInfoDef = [
         { tag: 'Cd', prop: 'localInstrument' }
       ]},
       { tag:'SeqTp', prop: 'sequenceType' },
-    /*  { tag: 'CtgyPurp', children:[
-        { tag: 'Cd', prop: 'categoryPurpose' }
-      ]}*/
     ]
   },
   {
@@ -153,6 +150,8 @@ export class PaymentInfo extends ElementWrapper{
 
 
   public validate():void {
+
+
 
     assert(
       PaymentInfo.localInstrumentCodes.indexOf(this.localInstrument) >= 0,
