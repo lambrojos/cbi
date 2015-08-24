@@ -50,8 +50,6 @@ export class ElementWrapper implements IElementWrapper {
   }
 }
 
-
-
 export class LogicalMessage extends ElementWrapper {
 
   public XSDFilepath: string;
@@ -65,7 +63,10 @@ export class LogicalMessage extends ElementWrapper {
    */
   public creationDateTime: Date;
 
-
+  /**
+  * The message identification string.
+  * @type {String}. If not provided it defaults to a dashless uuid v4
+  */
   public messageIdentification: string;
 
   /**

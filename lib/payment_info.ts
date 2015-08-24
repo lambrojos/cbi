@@ -20,9 +20,6 @@ const paymentInfoDef = [
         { tag: 'Cd', prop: 'localInstrument' }
       ]},
       { tag:'SeqTp', prop: 'sequenceType' },
-      /*  { tag: 'CtgyPurp', children:[
-        { tag: 'Cd', prop: 'categoryPurpose' }
-      ]}*/
     ]
   },
   {

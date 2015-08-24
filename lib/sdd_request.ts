@@ -43,10 +43,6 @@ const rootElementName = "CBISDDReqLogMsg"
 */
 export class SDDRequest extends RequestMessage{
 
-  /**
-   * The message id
-   * @type {string}
-   */
   public initiatingParty: InitiatingParty;
 
   /**
@@ -63,7 +59,7 @@ export class SDDRequest extends RequestMessage{
   public validate(){
 
     super.validate();
-    //temp arrays used for uniqueness test
+
     const paymentInfoIds = [];
     const e2eIds = [];
 
@@ -122,8 +118,3 @@ export class SDDRequest extends RequestMessage{
     });
   }
 }
-
-
-/*function assertArray(val):void{
-  val.map(assert);
-}*/

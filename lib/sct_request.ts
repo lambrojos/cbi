@@ -13,7 +13,7 @@ import {readFile} from 'fs';
 
 type XMLDoc = libxml.Document;
 
-const SDDReqDef = [
+const SCTDef = [
   {
     tag: 'GrpHdr', children:[
       {tag: 'MsgId', prop: 'messageIdentification'},
@@ -81,7 +81,7 @@ export class SCTRequest extends RequestMessage{
   }
 
   public constructor(doc?: libxml.Document){
-    this.elementDef = SDDReqDef;
+    this.elementDef = SCTDef;
     this.XSDName = XSDName;
     this.rootNodeName = rootElementName;
     this.namespace = namespace;
